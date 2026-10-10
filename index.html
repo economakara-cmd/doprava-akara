@@ -527,7 +527,7 @@ document.querySelectorAll(".key").forEach(function(k){
     document.getElementById("login-err").style.display="none";
   });
 });
-function doLogin(){
+function _doLoginBase(){
   var emp=DB[idVal];
   if(!emp){ document.getElementById("login-err").style.display="block"; return; }
   curUser={id:idVal, name:emp.name, ini:emp.ini, home:emp.home};
@@ -1007,16 +1007,14 @@ var BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRB5_T6ncUme9xSWx5wQ
 var USE_BACKEND = true;
 
 // Override login - synchronný lookup v lokálnej DB
-var _origDoLogin = doLogin;
 function doLogin() {
   var emp = DB[idVal];
-  // Skús aj bez leading zeros
-  if (!emp) { for (var k in DB) { if (parseInt(k,10)===parseInt(idVal,10)) { emp=DB[k]; break; } } }
+  if (!emp) { for (var k in DB) { if (parseInt(k,10)===parseInt(idVal,10)) { emp=DB[k]; idVal=k; break; } } }
   if (!emp) {
     document.getElementById("login-err").style.display = "block";
     return;
   }
-  _origDoLogin();
+  _doLoginBase();
 }
 
 // Odoslanie nahláška do Apps Script (fire-and-forget)
