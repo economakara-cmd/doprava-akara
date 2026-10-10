@@ -898,30 +898,67 @@ function jsonpCall(url, callback) {
   document.head.appendChild(script);
 }
 
-// Override login funkcie pre backend
+// CSV databáza zamestnancov
+var CSV_URL = "https://docs.google.com/spreadsheets/d/104hqACgM20Uss2i-zo5IoZIYUXuOffFQyRQvEDM5uiA/gviz/tq?tqx=out:csv&sheet=Zamestnanci";
+var EMP_CACHE = null;
+
+function parseCSV(text) {
+  var lines = text.split("\n");
+  var result = {};
+  for (var i = 1; i < lines.length; i++) {
+    var cols = lines[i].split(",").map(function(c){ return c.replace(/^"|"$/g,"").trim(); });
+    if (cols[0]) result[cols[0]] = {id:cols[0], priezvisko:cols[1], meno:cols[2], name:cols[3], firma:cols[4], linka:cols[5], zastavka:cols[6], stav:cols[7]||"aktívny"};
+  }
+  return result;
+}
+
+// Override login funkcie
 var _origDoLogin = doLogin;
 function doLogin() {
   if (!USE_BACKEND) { _origDoLogin(); return; }
   var el = document.getElementById("login-btn");
   if (el) el.disabled = true;
-  jsonpCall(BACKEND_URL + "?action=getEmployee&id=" + encodeURIComponent(idVal), function(res){
-    if (!res || !res.ok) {
+  document.getElementById("login-err").style.display = "none";
+
+  function doLookup(empDB) {
+    var emp = empDB[idVal];
+    if (!emp) {
       document.getElementById("login-err").style.display = "block";
-      document.getElementById("login-err").textContent = (res && res.msg) ? res.msg : "ID sa nenašlo v databáze.";
+      document.getElementById("login-err").textContent = "ID sa nenašlo v databáze.";
       if (el) el.disabled = false;
       return;
     }
-    var emp = res.emp;
-    // Doplň do lokálnej DB
+    if (emp.stav === "blokovaný") {
+      document.getElementById("login-err").style.display = "block";
+      document.getElementById("login-err").textContent = "Účet je zablokovaný.";
+      if (el) el.disabled = false;
+      return;
+    }
     DB[emp.id] = {
-      name: emp.name,
-      ini: (emp.meno[0] || "") + (emp.priezvisko[0] || ""),
-      home: (emp.linka && emp.zastavka) ? {lk: emp.linka, sname: emp.zastavka, time: ""} : null
+      name: emp.name || (emp.meno + " " + emp.priezvisko),
+      ini: (emp.meno[0]||"") + (emp.priezvisko[0]||""),
+      home: (emp.linka && emp.zastavka) ? {lk:emp.linka, sname:emp.zastavka, time:""} : null,
+      firma: emp.firma
     };
-    idVal = String(emp.id);
+    idVal = emp.id;
     if (el) el.disabled = false;
     _origDoLogin();
-  });
+  }
+
+  if (EMP_CACHE) { doLookup(EMP_CACHE); return; }
+
+  fetch(CSV_URL)
+    .then(function(r){ return r.text(); })
+    .then(function(text){
+      EMP_CACHE = parseCSV(text);
+      doLookup(EMP_CACHE);
+    })
+    .catch(function(err){
+      console.error("CSV chyba:", err);
+      document.getElementById("login-err").style.display = "block";
+      document.getElementById("login-err").textContent = "Chyba pripojenia.";
+      if (el) el.disabled = false;
+    });
 }
 
 function nacitajObjednavky(id) {
