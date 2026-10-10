@@ -1037,8 +1037,11 @@ function doConfirm() {
   var _dayTypes = JSON.parse(JSON.stringify(dayTypes));
   _doConfirmBase();
   if (!_curUser || !_selStop) return;
+  var orderIds = [];
   _days.forEach(function(d) {
     var dt = _dayTypes[d] || {dovoz:true, odvoz:true};
+    var oid = "OBJ-" + Date.now() + "-" + d;
+    orderIds.push(oid);
     sendToBackend({
       action: "newOrder",
       id: _curUser.id,
@@ -1049,16 +1052,23 @@ function doConfirm() {
       linka: _selLK,
       zastavka: _selStop.s,
       casNastupu: _selStop.t,
-      typ: (dt.dovoz && dt.odvoz) ? "dovoz+odvoz" : dt.dovoz ? "dovoz" : "odvoz"
+      typ: (dt.dovoz && dt.odvoz) ? "dovoz+odvoz" : dt.dovoz ? "dovoz" : "odvoz",
+      orderId: oid
     });
   });
+  // Ulož orderIds do poslednej nahláška v bkgs
+  if (bkgs.length > 0) bkgs[0].orderIds = orderIds;
 }
 
 // Override delBk - zruš v Apps Script
 function delBk(id) {
   var bk = bkgs.find(function(b){ return b.id===id; });
   if (bk) {
-    sendToBackend({action:"cancelOrder", orderId:bk.id, id:curUser ? curUser.id : "", name:curUser ? curUser.name : ""});
+    // Zruš každý deň zvlášť (orderIds sú uložené ako pole)
+    var ids = bk.orderIds || [bk.id];
+    ids.forEach(function(oid) {
+      sendToBackend({action:"cancelOrder", orderId:oid, id:curUser ? curUser.id : "", name:curUser ? curUser.name : ""});
+    });
   }
   _delBkBase(id);
 }
