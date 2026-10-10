@@ -530,7 +530,7 @@ document.querySelectorAll(".key").forEach(function(k){
 function _doLoginBase(){
   var emp=DB[idVal];
   if(!emp){ document.getElementById("login-err").style.display="block"; return; }
-  curUser={id:idVal, name:emp.name, ini:emp.ini, home:emp.home};
+  curUser={id:idVal, name:emp.name, ini:emp.ini, home:emp.home, firma:emp.firma||"BIA"};
   if(!curUser.home){
     document.getElementById("ob-av").textContent=emp.ini;
     document.getElementById("ob-nm").textContent=emp.name;
