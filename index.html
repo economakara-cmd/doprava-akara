@@ -884,7 +884,7 @@ function goConfirm(){
   renderDayList();
   showCard("sc-confirm");
 }
-function doConfirm(){
+function _doConfirmBase(){
   var isEdit=!!editId;
   var line=LINES[selLK];
   var dl=getDateLb();
@@ -981,7 +981,7 @@ function resetForm(){
   buildWstrip();
 }
 // ── BOOKINGS ──
-function delBk(id){ bkgs=bkgs.filter(function(b){ return b.id!==id; }); renderBkgs(); }
+function _delBkBase(id){ bkgs=bkgs.filter(function(b){ return b.id!==id; }); renderBkgs(); }
 function renderBkgs(){
   var el=document.getElementById("bk-list"); if(!el) return;
   if(!bkgs.length){ el.innerHTML="<div class='empty'>Žiadne nahlásky.</div>"; return; }
@@ -1027,9 +1027,8 @@ function sendToBackend(data) {
 }
 
 // Override doConfirm - pridaj odosielanie do Apps Script
-var _origDoConfirm = doConfirm;
 function doConfirm() {
-  _origDoConfirm();
+  _doConfirmBase();
   if (!curUser || !selStop) return;
   var days = getDaysList();
   days.forEach(function(d) {
@@ -1050,13 +1049,12 @@ function doConfirm() {
 }
 
 // Override delBk - zruš v Apps Script
-var _origDelBk = delBk;
 function delBk(id) {
   var bk = bkgs.find(function(b){ return b.id===id; });
   if (bk) {
     sendToBackend({action:"cancelOrder", orderId:bk.id, id:curUser ? curUser.id : "", name:curUser ? curUser.name : ""});
   }
-  _origDelBk(id);
+  _delBkBase(id);
 }
 
 // Ping pri štarte
