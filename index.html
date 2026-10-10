@@ -1003,7 +1003,7 @@ buildShifts();
 buildWstrip();
 
 // ── BACKEND INTEGRÁCIA ──────────────────────────────────────
-var BACKEND_URL = "https://script.google.com/macros/s/AKfycbyIAExp1ByTw6P-iQGiXbMjSL-0Ztg3bwKe8mZ0DFMSAWRfd_ihD2U4D4IVXT2CIuzRXQ";
+var BACKEND_URL = "https://hidden-hat-7586.econom-akara.workers.dev";
 var USE_BACKEND = true;
 
 // Override login - synchronný lookup v lokálnej DB
@@ -1019,11 +1019,11 @@ function doLogin() {
 
 // Odoslanie nahláška do Apps Script (fire-and-forget)
 function sendToBackend(data) {
-  // GET request cez script tag - funguje na všetkých zariadeniach
-  var params = encodeURIComponent(JSON.stringify(data));
-  var url = BACKEND_URL + "?payload=" + params;
-  var img = new Image();
-  img.src = url;
+  fetch(BACKEND_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(data)
+  }).catch(function(){});
 }
 
 // Override doConfirm - pridaj odosielanie do Apps Script
