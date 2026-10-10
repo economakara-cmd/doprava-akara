@@ -904,26 +904,23 @@ function doLogin() {
   var el = document.getElementById("login-btn");
   if (el) el.disabled = true;
   jsonpCall(BACKEND_URL + "?action=getEmployee&id=" + encodeURIComponent(idVal), function(res){
-      if (!res.ok) {
-        document.getElementById("login-err").style.display = "block";
-        document.getElementById("login-err").textContent = res.msg || "Chyba prihlásenia.";
-        if (el) el.disabled = false;
-        return;
-      }
-      var emp = res.emp;
-      // Doplň do lokálnej DB ak chýba
-      if (!DB[emp.id]) {
-        DB[emp.id] = {
-          name: emp.name, ini: emp.name.split(" ").map(function(w){return w[0];}).join("").toUpperCase(),
-          home: emp.linka ? {lk: emp.linka, sname: emp.zastavka, time: ""} : null
-        };
-      }
-      idVal = emp.id;
-      _origDoLogin();
-      // Načítaj existujúce objednávky
-      nacitajObjednavky(emp.id);
-    })
-    .catch(function(){ _origDoLogin(); });
+    if (!res || !res.ok) {
+      document.getElementById("login-err").style.display = "block";
+      document.getElementById("login-err").textContent = (res && res.msg) ? res.msg : "ID sa nenašlo v databáze.";
+      if (el) el.disabled = false;
+      return;
+    }
+    var emp = res.emp;
+    // Doplň do lokálnej DB
+    DB[emp.id] = {
+      name: emp.name,
+      ini: (emp.meno[0] || "") + (emp.priezvisko[0] || ""),
+      home: (emp.linka && emp.zastavka) ? {lk: emp.linka, sname: emp.zastavka, time: ""} : null
+    };
+    idVal = String(emp.id);
+    if (el) el.disabled = false;
+    _origDoLogin();
+  });
 }
 
 function nacitajObjednavky(id) {
