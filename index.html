@@ -1028,21 +1028,27 @@ function sendToBackend(data) {
 
 // Override doConfirm - pridaj odosielanie do Apps Script
 function doConfirm() {
+  // Ulož hodnoty PRED resetom
+  var _curUser = curUser;
+  var _selStop = selStop;
+  var _selShift = selShift;
+  var _selLK = selLK;
+  var _days = getDaysList();
+  var _dayTypes = JSON.parse(JSON.stringify(dayTypes));
   _doConfirmBase();
-  if (!curUser || !selStop) return;
-  var days = getDaysList();
-  days.forEach(function(d) {
-    var dt = dayTypes[d] || {dovoz:true, odvoz:true};
+  if (!_curUser || !_selStop) return;
+  _days.forEach(function(d) {
+    var dt = _dayTypes[d] || {dovoz:true, odvoz:true};
     sendToBackend({
       action: "newOrder",
-      id: curUser.id,
-      name: curUser.name,
-      firma: curUser.firma || "BIA",
+      id: _curUser.id,
+      name: _curUser.name,
+      firma: _curUser.firma || "BIA",
       datum: d,
-      zmena: selShift,
-      linka: selLK,
-      zastavka: selStop ? selStop.s : "",
-      casNastupu: selStop ? selStop.t : "",
+      zmena: _selShift,
+      linka: _selLK,
+      zastavka: _selStop.s,
+      casNastupu: _selStop.t,
       typ: (dt.dovoz && dt.odvoz) ? "dovoz+odvoz" : dt.dovoz ? "dovoz" : "odvoz"
     });
   });
