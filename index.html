@@ -143,6 +143,9 @@ html,body{min-height:100%;background:#eef0f4;font-family:"Roboto",sans-serif;-we
 .ob-ic{width:22px;height:22px;border-radius:50%;background:#1a3f72;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
 .ob-txt{font-size:13px;color:#5e7aab;line-height:1.5;}
 .ob-txt strong{color:#1a3f72;}
+.bk-verify-ok{margin-top:5px;font-size:11px;color:#2e7d32;font-weight:500;}
+.bk-verify-err{margin-top:5px;font-size:11px;color:#c62828;font-weight:600;}
+.bk-ok,.bk-err,.bk-pending{font-size:14px;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -290,6 +293,7 @@ html,body{min-height:100%;background:#eef0f4;font-family:"Roboto",sans-serif;-we
 <div class="srow"><span class="sk">Zastávka</span><span class="sv" id="d-stop">-</span></div>
 <div class="srow"><span class="sk">Čas odchodu</span><span class="sv" id="d-time">-</span></div>
 </div>
+<div id="verify-status" style="display:none;margin:14px 0 4px;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:500;text-align:center;"></div>
 <button class="btn-p" onclick="goNew()">Pridať ďalšiu nahláška</button>
 <button class="btn-s" onclick="goMy()">Zobraziť moje nahlásky</button>
 </div>
@@ -1003,14 +1007,44 @@ function resetForm(){
 }
 // ── BOOKINGS ──
 function _delBkBase(id){ bkgs=bkgs.filter(function(b){ return b.id!==id; }); renderBkgs(); }
+function getBkStatus(b) {
+  // Vráti HTML badge podľa b.verified
+  if (b.verified === true)  return "<span class='bk-ok' title='Potvrdené v evidencii'>✅</span>";
+  if (b.verified === false) return "<span class='bk-err' title='Nezapísané! Kontaktuj dispečing: 0904 930 930'>❌</span>";
+  return "<span class='bk-pending' title='Overujem...' style='font-size:16px;opacity:.5'>⏳</span>";
+}
+
+function verifyBkg(b) {
+  if (!b.orderIds || !b.orderIds.length) return;
+  var batchId = b.orderIds[0];
+  var expectedCount = b.days ? b.days.length : 1;
+  fetch(BACKEND_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({action: "checkOrder", batchId: batchId})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    b.verified = (data.ok && data.found >= expectedCount);
+    b.verifiedCount = data.found || 0;
+    b.verifiedTotal = expectedCount;
+    renderBkgs();
+  })
+  .catch(function(){ b.verified = null; });
+}
+
 function renderBkgs(){
   var el=document.getElementById("bk-list"); if(!el) return;
   if(!bkgs.length){ el.innerHTML="<div class='empty'>Žiadne nahlásky.</div>"; return; }
   el.innerHTML=bkgs.map(function(b){
+    var statusBadge = getBkStatus(b);
+    var verifiedDetail = "";
+    if (b.verified === true)  verifiedDetail = "<div class='bk-verify-ok'>✅ Potvrdené v evidencii (" + b.verifiedCount + "/" + b.verifiedTotal + " dní)</div>";
+    if (b.verified === false) verifiedDetail = "<div class='bk-verify-err'>❌ Nezapísané! Zavolaj: 0904 930 930</div>";
     return "<div class='bk-item'>"
-      +"<div class='bk-date'>"+b.dl+"</div>"
+      +"<div class='bk-date'>"+b.dl+" "+statusBadge+"</div>"
       +"<div class='bk-main'>"
-      +"<div style='flex:1'><div class='bk-info'>"+b.shift+" - "+b.shiftLb+" - Linka "+b.ln+"</div><div class='bk-stop'>"+b.stop+" - odchod "+b.time+"</div>"+(b.dayTypes?function(){var s=Object.values(b.dayTypes);var dov=s.filter(function(x){return x.dovoz;}).length;var odv=s.filter(function(x){return x.odvoz;}).length;var parts=[];if(dov)parts.push(dov+"× dovoz");if(odv)parts.push(odv+"× odvoz");return"<div class='bk-stop' style='margin-top:2px'>"+parts.join(", ")+"</div>";}():"")+"</div>"
+      +"<div style='flex:1'><div class='bk-info'>"+b.shift+" - "+b.shiftLb+" - Linka "+b.ln+"</div><div class='bk-stop'>"+b.stop+" - odchod "+b.time+"</div>"+(b.dayTypes?function(){var s=Object.values(b.dayTypes);var dov=s.filter(function(x){return x.dovoz;}).length;var odv=s.filter(function(x){return x.odvoz;}).length;var parts=[];if(dov)parts.push(dov+"× dovoz");if(odv)parts.push(odv+"× odvoz");return"<div class='bk-stop' style='margin-top:2px'>"+parts.join(", ")+"</div>";}():"")+verifiedDetail+"</div>"
       +"<div class='bk-acts'>"
       +"<button class='edit-btn' onclick='startEdit("+b.id+")'>Zmeniť</button>"
       +"<button class='del-btn' onclick='delBk("+b.id+")'>Zrušiť</button>"
@@ -1081,6 +1115,50 @@ function doConfirm() {
   });
   // Ulož batchId do poslednej nahláška
   if (bkgs.length > 0) bkgs[0].orderIds = [batchId];
+  // Ulož počet dní do nahláška pre verifikáciu
+  if (bkgs.length > 0) bkgs[0].days = orderItems;
+  // Spusti overenie po 6 sekundách - v done karte aj v zozname
+  var _bkg = bkgs[0];
+  setTimeout(function(){
+    verifyOrder(batchId, orderItems.length);
+    if (_bkg) verifyBkg(_bkg);
+  }, 6000);
+}
+
+function verifyOrder(batchId, expectedCount) {
+  var el = document.getElementById("verify-status");
+  if (!el) return;
+  el.style.display = "block";
+  el.style.background = "#f0f4ff";
+  el.style.color = "#1a3f72";
+  el.textContent = "⏳ Overujem zápis v evidencii...";
+  
+  fetch(BACKEND_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({action: "checkOrder", batchId: batchId})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (data.ok && data.found >= expectedCount) {
+      el.style.background = "#e8f5e9";
+      el.style.color = "#2e7d32";
+      el.textContent = "✅ Potvrdené: " + data.found + "/" + expectedCount + " dní zapísaných v evidencii.";
+    } else if (data.ok && data.found > 0) {
+      el.style.background = "#fff8e1";
+      el.style.color = "#e65100";
+      el.textContent = "⚠️ Čiastočne: " + data.found + "/" + expectedCount + " dní. Kontaktuj dispečing: 0904 930 930";
+    } else {
+      el.style.background = "#ffebee";
+      el.style.color = "#c62828";
+      el.textContent = "❌ Nahláška nebola doručená do evidencie! Kontaktuj: 0904 930 930";
+    }
+  })
+  .catch(function() {
+    el.style.background = "#fff8e1";
+    el.style.color = "#e65100";
+    el.textContent = "⚠️ Overenie zlyhalo — skontroluj pripojenie a opakuj.";
+  });
 }
 
 // Override delBk - zruš v Apps Script
