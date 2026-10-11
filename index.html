@@ -7,7 +7,1257 @@
 <title>Doprava zamestnancov</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+*,*::before,*::after{box-sizing:border-box;margin<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.workers.dev https://fonts.googleapis.com https://fonts.gstatic.com; connect-src 'self' https://*.workers.dev; script-src 'self' 'unsafe-inline' 'unsafe-eval';">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doprava zamestnancov</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:#eef0f4;font-family:"Roboto",sans-serif;-webkit-font-smoothing:antialiased;}
+.app-wrap{min-height:100vh;padding:28px 16px 40px;display:flex;flex-direction:column;align-items:center;}
+.logo-bar{margin-bottom:20px;display:flex;justify-content:center;}
+.card{background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(26,63,114,.10);overflow:hidden;width:100%;max-width:460px;display:none;}
+.card.active{display:block;}
+.topbar{background:#1a3f72;padding:14px 18px;display:flex;align-items:center;gap:12px;}
+.topbar-title{color:#fff;font-size:15px;font-weight:700;}
+.topbar-sub{color:#90aedd;font-size:12px;margin-top:2px;}
+.topbar-right{margin-left:auto;}
+.bus-icon{width:30px;height:30px;background:rgba(255,255,255,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:5px 11px;font-size:11px;font-weight:500;color:#fff;cursor:pointer;}
+.logout-btn:hover{background:rgba(255,255,255,.25);}
+.card-body{padding:22px;}
+.step-hdr{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.step-num{width:32px;height:32px;border-radius:50%;background:#1a3f72;color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-title{font-size:17px;font-weight:700;color:#1a3f72;}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#8a94a8;margin-bottom:7px;margin-top:14px;}
+.lbl:first-child{margin-top:0;}
+.nav-tabs{display:flex;border-bottom:1.5px solid #e8eaf0;margin-bottom:18px;}
+.nav-tab{flex:1;padding:10px 0;text-align:center;font-size:13px;font-weight:500;cursor:pointer;color:#8a94a8;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;}
+.nav-tab.active{color:#1a3f72;border-bottom-color:#1a3f72;}
+.emp-card{background:#eef3fb;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.avatar{width:40px;height:40px;border-radius:50%;background:#1a3f72;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.emp-name{font-size:14px;font-weight:700;color:#1a3f72;}
+.emp-id{font-size:12px;color:#5e7aab;}
+.id-disp{font-family:"Roboto Mono",monospace;font-size:26px;letter-spacing:.12em;color:#1a3f72;background:#f5f7fb;border:1.5px solid #d0d8ea;border-radius:10px;padding:12px 16px;min-height:54px;display:flex;align-items:center;margin-bottom:10px;}
+.id-ph{color:#b0bcd4;font-size:14px;font-family:"Roboto",sans-serif;letter-spacing:0;}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:4px;}
+.key{background:#f5f7fb;border:1.5px solid #dde3ef;border-radius:10px;padding:13px 0;text-align:center;font-size:19px;font-weight:500;cursor:pointer;color:#1a3f72;user-select:none;}
+.key:hover{background:#e8eef8;}
+.key.del{font-size:11px;color:#8a94a8;}
+.key.emp{background:transparent;border-color:transparent;cursor:default;}
+.btn-p{background:#1a3f72;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin-top:10px;font-family:"Roboto",sans-serif;}
+.btn-p:hover{background:#153264;}
+.btn-p:disabled{background:#b0bcd4;cursor:default;}
+.btn-s{background:#fff;color:#1a3f72;border:1.5px solid #1a3f72;border-radius:10px;padding:11px;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-top:8px;font-family:"Roboto",sans-serif;}
+.btn-s:hover{background:#eef3fb;}
+.date-row{display:flex;gap:6px;align-items:stretch;margin-bottom:8px;}
+.today-btn{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 12px;background:#1a3f72;border:1.5px solid #1a3f72;border-radius:10px;cursor:pointer;min-width:70px;}
+.today-btn.off{background:#f5f7fb;border-color:#dde3ef;}
+.tlt{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#90aedd;margin-bottom:2px;}
+.tlt.off{color:#b0bcd4;}
+.tdn{font-size:15px;font-weight:700;color:#fff;}
+.tdn.off{color:#5e7aab;}
+.tddn{font-size:10px;color:#90aedd;margin-top:1px;}
+.tddn.off{color:#b0bcd4;}
+.wstrip{display:flex;flex-direction:row;gap:5px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:#c8d0e0 transparent;width:100%;}
+.wstrip::-webkit-scrollbar{height:4px;}
+.wstrip::-webkit-scrollbar-track{background:transparent;}
+.wstrip::-webkit-scrollbar-thumb{background:#c8d0e0;border-radius:4px;}
+.dc{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:1.5px solid #dde3ef;border-radius:10px;cursor:pointer;background:#f5f7fb;user-select:none;min-width:46px;flex-shrink:0;}
+.dc:hover{border-color:#8aabe0;}
+.dc.sel{background:#eef3fb;border-color:#1a3f72;}
+.dc.sel .dn,.dc.sel .dd{color:#1a3f72;}
+.dn{font-size:9px;font-weight:700;color:#8a94a8;text-transform:uppercase;}
+.dd{font-size:13px;font-weight:700;color:#1a3f72;font-family:"Roboto Mono",monospace;}
+.rtog{display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;}
+.rtog-lbl{font-size:13px;color:#8a94a8;}
+.tog-box{width:36px;height:20px;border-radius:10px;background:#dde3ef;border:1.5px solid #c8d0e0;position:relative;flex-shrink:0;}
+.tog-box.on{background:#1a3f72;border-color:#1a3f72;}
+.tog-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;}
+.tog-box.on .tog-knob{left:18px;}
+.ri{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:4px;}
+.ri-w{display:flex;flex-direction:column;gap:4px;}
+.ri-lbl{font-size:10px;color:#b0bcd4;text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+.ri-date{width:100%;border:1.5px solid #dde3ef;border-radius:10px;padding:8px 10px;font-size:13px;color:#1a3f72;background:#f5f7fb;font-family:"Roboto",sans-serif;}
+.ri-dash{font-size:16px;color:#b0bcd4;text-align:center;}
+.sel-sum{font-size:12px;color:#1a3f72;min-height:18px;margin-bottom:4px;font-weight:500;}
+.shifts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.sc{border:1.5px solid #dde3ef;border-radius:10px;padding:9px 8px;cursor:pointer;background:#f5f7fb;}
+.sc:hover{border-color:#8aabe0;}
+.sc.sel{border-color:#1a3f72;background:#eef3fb;}
+.sc.sel .st{color:#1a3f72;}
+.sc.sel .sn{color:#5e7aab;}
+.st{font-size:13px;font-weight:700;color:#1a3f72;font-family:"Roboto Mono",monospace;}
+.sn{font-size:10px;color:#8a94a8;margin-top:2px;}
+.other-row{grid-column:span 3;border:1.5px solid #dde3ef;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-top:4px;background:#f5f7fb;}
+.other-row input{border:none;background:transparent;font-size:13px;color:#1a3f72;flex:1;outline:none;font-family:"Roboto",sans-serif;}
+.other-row input::placeholder{color:#b0bcd4;}
+.other-lbl{font-size:12px;color:#8a94a8;white-space:nowrap;flex-shrink:0;font-weight:500;}
+.line-sel{width:100%;border:1.5px solid #dde3ef;border-radius:10px;padding:10px 12px;font-size:13px;color:#1a3f72;background:#f5f7fb;font-family:"Roboto",sans-serif;font-weight:500;cursor:pointer;margin-bottom:6px;}
+.line-sel:focus{outline:none;border-color:#1a3f72;}
+.stop-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid #dde3ef;border-radius:10px;cursor:pointer;margin-bottom:5px;background:#f5f7fb;}
+.stop-item:hover{border-color:#8aabe0;}
+.stop-item.sel{border-color:#1a3f72;background:#eef3fb;}
+.stop-item.home{border-color:#2d7dd2;}
+.sdot{width:9px;height:9px;border-radius:50%;border:2px solid #c8d0e0;flex-shrink:0;}
+.stop-item.sel .sdot{background:#1a3f72;border-color:#1a3f72;}
+.stop-item.home .sdot{background:#2d7dd2;border-color:#2d7dd2;}
+.sname{font-size:13px;color:#1a3f72;font-weight:500;flex:1;}
+.stime{font-size:12px;color:#8a94a8;font-family:"Roboto Mono",monospace;font-weight:500;white-space:nowrap;}
+.stop-item.sel .stime,.stop-item.sel .sname{color:#1a3f72;}
+.hbadge{font-size:10px;font-weight:700;background:#dde8f7;color:#1a3f72;border-radius:5px;padding:2px 6px;margin-left:6px;}
+.no-item{font-size:13px;color:#b0bcd4;padding:12px 0;text-align:center;}
+.clink{font-size:12px;color:#2d7dd2;cursor:pointer;text-decoration:underline;font-weight:500;}
+.bk-item{background:#f5f7fb;border-radius:10px;padding:11px 13px;border-left:4px solid #2d7dd2;margin-bottom:8px;}
+.bk-date{font-size:11px;color:#8a94a8;margin-bottom:4px;font-weight:500;}
+.bk-main{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.bk-info{font-size:13px;font-weight:700;color:#1a3f72;}
+.bk-stop{font-size:12px;color:#8a94a8;margin-top:2px;}
+.bk-acts{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+.edit-btn{font-size:11px;color:#1a3f72;background:#dde8f7;border:1.5px solid #b0c8e8;border-radius:7px;padding:4px 10px;cursor:pointer;white-space:nowrap;font-weight:700;font-family:"Roboto",sans-serif;}
+.edit-btn:hover{background:#c8daf5;}
+.del-btn{font-size:11px;color:#c0392b;background:#fdf0ef;border:1.5px solid #f5c6c2;border-radius:7px;padding:4px 10px;cursor:pointer;white-space:nowrap;font-family:"Roboto",sans-serif;}
+.del-btn:hover{background:#fce4e2;}
+.edit-banner{background:#fff8e1;border:1.5px solid #f9c74f;border-radius:10px;padding:10px 13px;display:none;align-items:center;gap:8px;margin-bottom:14px;font-size:12px;color:#7a5c00;font-weight:500;}
+.edit-banner.on{display:flex;}
+.edit-banner-ic{width:18px;height:18px;background:#f9c74f;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#7a5c00;flex-shrink:0;}
+.sum-box{background:#f5f7fb;border-radius:10px;padding:14px 16px;margin-top:14px;border:1.5px solid #e8eaf0;}
+.srow{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;font-size:13px;}
+.srow:not(:last-child){border-bottom:1px solid #e8eaf0;}
+.sk{color:#8a94a8;font-weight:500;}
+.sv{color:#1a3f72;font-weight:700;text-align:right;max-width:65%;}
+.day-list{margin:4px 0 2px;}
+.day-row{display:flex;flex-direction:column;padding:8px 0;border-bottom:1px solid #e8eaf0;}
+.day-row:last-child{border-bottom:none;}
+.day-lbl{font-size:12px;color:#1a3f72;font-weight:600;margin-bottom:6px;}
+.day-btns{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.shift-time{font-size:11px;font-weight:700;font-family:"Roboto Mono",monospace;color:#5e7aab;background:#eef3fb;border-radius:6px;padding:4px 8px;white-space:nowrap;}
+.end-time-inp{font-size:11px;font-weight:700;font-family:"Roboto Mono",monospace;color:#1a3f72;background:#f5f7fb;border:1.5px solid #dde3ef;border-radius:7px;padding:4px 6px;cursor:pointer;outline:none;width:88px;}
+.end-time-inp:focus{border-color:#1a3f72;}
+.dt-btn{font-size:11px;font-weight:700;border-radius:7px;padding:5px 11px;cursor:pointer;border:1.5px solid #dde3ef;background:#f5f7fb;color:#8a94a8;font-family:"Roboto",sans-serif;white-space:nowrap;}
+.dt-btn.on.dov{background:#1a8a54;border-color:#1a8a54;color:#fff;}
+.dt-btn.on.odv{background:#c0392b;border-color:#c0392b;color:#fff;}
+.ok-box{background:#eafaf3;border-radius:10px;padding:13px 14px;display:flex;gap:10px;align-items:flex-start;margin-top:4px;border:1.5px solid #a8e6ca;}
+.ok-ic{width:20px;height:20px;background:#1a8a54;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ok-title{font-size:13px;font-weight:700;color:#0d5c38;}
+.ok-sub{font-size:12px;color:#1a6e44;margin-top:2px;}
+.err{font-size:12px;color:#c0392b;text-align:center;margin-top:8px;font-weight:500;}
+.empty{text-align:center;padding:24px 0;color:#b0bcd4;font-size:13px;}
+.hint{font-size:11px;color:#b0bcd4;text-align:center;margin-top:10px;}
+.ob-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;background:#eef3fb;border-radius:10px;padding:12px;}
+.ob-ic{width:22px;height:22px;border-radius:50%;background:#1a3f72;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ob-txt{font-size:13px;color:#5e7aab;line-height:1.5;}
+.ob-txt strong{color:#1a3f72;}
+.bk-verify-ok{margin-top:5px;font-size:11px;color:#2e7d32;font-weight:500;}
+.bk-verify-err{margin-top:5px;font-size:11px;color:#c62828;font-weight:600;}
+.bk-ok,.bk-err,.bk-pending{font-size:14px;vertical-align:middle;}
+.day-ovr{display:inline-block;background:#1a3f72;color:#fff;font-size:9px;border-radius:4px;padding:1px 4px;margin-left:2px;vertical-align:middle;line-height:1.4;}
+.dc.sel .day-ovr{background:#fff;color:#1a3f72;}
+</style>
+</head>
+<body>
+<div class="app-wrap">
+<div class="logo-bar">
+<svg width="130" height="38" viewBox="0 0 130 38" fill="none">
+<rect width="38" height="38" rx="9" fill="#1a3f72"/>
+<text x="19" y="26" text-anchor="middle" font-family="Roboto,sans-serif" font-weight="700" font-size="17" fill="white">D</text>
+<text x="52" y="15" font-family="Roboto,sans-serif" font-weight="700" font-size="13" fill="#1a3f72">DOPRAVA</text>
+<text x="52" y="30" font-family="Roboto,sans-serif" font-weight="400" font-size="10" fill="#5e7aab">zamestnancov</text>
+</svg>
+</div>
+
+<!-- LOGIN -->
+<div id="sc-login" class="card active">
+<div class="topbar">
+<div class="bus-icon"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="2" y="7" width="18" height="11" rx="3" fill="#90aedd"/><rect x="5" y="4" width="12" height="5" rx="2" fill="#c0d4f0"/><circle cx="7.5" cy="18.5" r="2.5" fill="#fff"/><circle cx="14.5" cy="18.5" r="2.5" fill="#fff"/><rect x="9" y="10" width="4" height="5" rx="1" fill="#fff"/></svg></div>
+<div><div class="topbar-title">Evidencia dopravy</div><div class="topbar-sub">Prihlásenie zamestnanca</div></div>
+</div>
+<div class="card-body">
+<div class="step-hdr"><div class="step-num">1</div><div class="step-title">Zadajte vaše ID</div></div>
+<div class="id-disp"><span class="id-ph" id="id-ph">Zadajte ID...</span><span id="id-v" style="display:none"></span></div>
+<div class="numpad">
+<div class="key" data-k="1">1</div><div class="key" data-k="2">2</div><div class="key" data-k="3">3</div>
+<div class="key" data-k="4">4</div><div class="key" data-k="5">5</div><div class="key" data-k="6">6</div>
+<div class="key" data-k="7">7</div><div class="key" data-k="8">8</div><div class="key" data-k="9">9</div>
+<div class="key emp"></div><div class="key" data-k="0">0</div><div class="key del" data-k="del">&#x232B; vymazať</div>
+</div>
+<button class="btn-p" id="login-btn" disabled onclick="doLogin()">Prihlásiť sa</button>
+<div class="err" id="login-err" style="display:none">ID sa nenašlo v databáze.</div>
+<div class="hint">Test ID: 00421 &middot; 00387 &middot; 01024 &middot; 00512</div>
+</div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="sc-ob" class="card">
+<div class="topbar">
+<div class="bus-icon"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="2" y="7" width="18" height="11" rx="3" fill="#90aedd"/><rect x="5" y="4" width="12" height="5" rx="2" fill="#c0d4f0"/><circle cx="7.5" cy="18.5" r="2.5" fill="#fff"/><circle cx="14.5" cy="18.5" r="2.5" fill="#fff"/></svg></div>
+<div><div class="topbar-title">Prvé prihlásenie</div><div class="topbar-sub">Nastavenie profilu</div></div>
+</div>
+<div class="card-body">
+<div class="step-hdr"><div class="step-num">1</div><div class="step-title">Domovská zastávka</div></div>
+<div class="emp-card"><div class="avatar" id="ob-av">?</div><div><div class="emp-name" id="ob-nm">?</div><div class="emp-id" id="ob-id">?</div></div></div>
+<div class="ob-step"><div class="ob-ic">i</div><div class="ob-txt">Vyberte svoju <strong>domovskú zastávku</strong> a linku z ktorej nastupujete najčastejšie.</div></div>
+<div class="lbl" style="margin-top:0">Linka</div>
+<select class="line-sel" id="ob-line" onchange="obLineCh()">
+<option value="">-- Vyberte linku --</option>
+</select>
+<div class="lbl" id="ob-stop-lbl" style="display:none">Zastávka</div>
+<div id="ob-stops"></div>
+<button class="btn-p" id="ob-btn" disabled onclick="saveHome()">Uložiť a pokračovať</button>
+</div>
+</div>
+
+<!-- MAIN -->
+<div id="sc-main" class="card">
+<div class="topbar">
+<div class="bus-icon"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="2" y="7" width="18" height="11" rx="3" fill="#90aedd"/><rect x="5" y="4" width="12" height="5" rx="2" fill="#c0d4f0"/><circle cx="7.5" cy="18.5" r="2.5" fill="#fff"/><circle cx="14.5" cy="18.5" r="2.5" fill="#fff"/><rect x="9" y="10" width="4" height="5" rx="1" fill="#fff"/></svg></div>
+<div><div class="topbar-title">Evidencia dopravy</div><div class="topbar-sub" id="main-sub">?</div></div>
+<div class="topbar-right"><button class="logout-btn" onclick="doLogout()">Odhlásiť</button></div>
+</div>
+<div class="card-body">
+<div class="emp-card"><div class="avatar" id="m-av">?</div><div style="flex:1"><div class="emp-name" id="m-nm">?</div><div class="emp-id" id="m-id">?</div></div></div>
+<div class="nav-tabs"><div class="nav-tab active" id="tab-new" onclick="switchTab(0)">Nová nahláška</div><div class="nav-tab" id="tab-my" onclick="switchTab(1)">Moje nahlásky</div></div>
+<div id="pane-new">
+<div class="edit-banner" id="edit-ban"><div class="edit-banner-ic">!</div><span id="edit-ban-txt">Upravujete</span></div>
+<div class="step-hdr" style="margin-bottom:12px"><div class="step-num">2</div><div class="step-title">Dátum jazdy</div></div>
+<div class="lbl" style="margin-top:0">Dátum jazdy</div>
+<div class="date-row" style="display:block;">
+<div class="wstrip" id="wstrip"></div>
+</div>
+<div class="rtog" onclick="togRange()">
+<div class="tog-box" id="tog-box"><div class="tog-knob"></div></div>
+<span class="rtog-lbl">Iný dátum (rozsah od-do)</span>
+</div>
+<div id="range-sec" style="display:none">
+<div class="ri">
+<div class="ri-w"><span class="ri-lbl">Od</span><input type="date" class="ri-date" id="r-from" onchange="onRC()"></div>
+<div class="ri-dash">-</div>
+<div class="ri-w"><span class="ri-lbl">Do</span><input type="date" class="ri-date" id="r-to" onchange="onRC()"></div>
+</div>
+</div>
+<div class="sel-sum" id="sel-sum"></div>
+<div class="step-hdr" style="margin-top:16px;margin-bottom:12px"><div class="step-num">3</div><div class="step-title">Zmena a linka</div></div>
+<div class="lbl" style="margin-top:0">Pracovná zmena</div>
+<div class="shifts" id="shift-grid"></div>
+<div class="other-row" id="other-row">
+<span class="other-lbl">Iná:</span>
+<input type="text" id="other-inp" placeholder="napr. 07:00-15:30" oninput="onOther(this)">
+</div>
+<div class="lbl" style="margin-top:14px">Linka</div>
+<select class="line-sel" id="f-line" onchange="onLineCh()">
+<option value="">-- Najprv vyberte zmenu --</option>
+</select>
+<div class="lbl" id="f-stop-lbl" style="display:none">Zastávka nástupu</div>
+<div id="f-stops"></div>
+<button class="btn-p" id="sub-btn" disabled onclick="goConfirm()">Pokračovať</button>
+<button class="btn-s" id="cancel-edit-btn" style="display:none" onclick="cancelEdit()">Zrušiť úpravu</button>
+</div>
+<div id="pane-my" style="display:none">
+<div id="bk-list"></div>
+</div>
+</div>
+</div>
+
+<!-- CONFIRM -->
+<div id="sc-confirm" class="card">
+<div class="topbar">
+<div class="bus-icon"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="2" y="7" width="18" height="11" rx="3" fill="#90aedd"/><rect x="5" y="4" width="12" height="5" rx="2" fill="#c0d4f0"/><circle cx="7.5" cy="18.5" r="2.5" fill="#fff"/><circle cx="14.5" cy="18.5" r="2.5" fill="#fff"/></svg></div>
+<div><div class="topbar-title">Potvrdenie nahláška</div><div class="topbar-sub" id="cf-sub">Skontrolujte údaje</div></div>
+</div>
+<div class="card-body">
+<div class="step-hdr" style="margin-bottom:14px"><div class="step-num">4</div><div class="step-title">Zhrnutie</div></div>
+<div class="sum-box">
+<div class="srow"><span class="sk">Zamestnanec</span><span class="sv" id="cf-emp">-</span></div>
+<div class="srow"><span class="sk">Zmena</span><span class="sv" id="cf-shift">-</span></div>
+<div class="srow"><span class="sk">Linka</span><span class="sv" id="cf-line">-</span></div>
+<div class="srow"><span class="sk">Zastávka</span><span class="sv" id="cf-stop">-</span></div>
+<div class="srow"><span class="sk">Čas odchodu</span><span class="sv" id="cf-time">-</span></div>
+</div>
+<div class="lbl" style="margin-top:14px">Dni jazdy a typ dopravy</div>
+<div class="sum-box" style="padding:6px 16px;">
+<div id="cf-days"></div>
+</div>
+<button class="btn-p" id="cf-btn" onclick="doConfirm()">Odoslať nahláška</button>
+<button class="btn-s" onclick="showCard('sc-main')">Späť na úpravu</button>
+</div>
+</div>
+
+<!-- DONE -->
+<div id="sc-done" class="card">
+<div class="topbar">
+<div class="bus-icon"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="2" y="7" width="18" height="11" rx="3" fill="#90aedd"/><rect x="5" y="4" width="12" height="5" rx="2" fill="#c0d4f0"/><circle cx="7.5" cy="18.5" r="2.5" fill="#fff"/><circle cx="14.5" cy="18.5" r="2.5" fill="#fff"/></svg></div>
+<div><div class="topbar-title">Hotovo</div><div class="topbar-sub">Nahláška zaznamenaná</div></div>
+</div>
+<div class="card-body">
+<div class="ok-box">
+<div class="ok-ic"><svg width="11" height="11" viewBox="0 0 11 11"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+<div><div class="ok-title" id="done-title">Nahláška odoslaná.</div><div class="ok-sub" id="done-sub">-</div></div>
+</div>
+<div class="sum-box">
+<div class="srow"><span class="sk">Dátum</span><span class="sv" id="d-date">-</span></div>
+<div class="srow"><span class="sk">Zmena</span><span class="sv" id="d-shift">-</span></div>
+<div class="srow"><span class="sk">Linka</span><span class="sv" id="d-line">-</span></div>
+<div class="srow"><span class="sk">Zastávka</span><span class="sv" id="d-stop">-</span></div>
+<div class="srow"><span class="sk">Čas odchodu</span><span class="sv" id="d-time">-</span></div>
+</div>
+<div id="verify-status" style="display:none;margin:14px 0 4px;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:500;text-align:center;"></div>
+<button class="btn-p" onclick="goNew()">Pridať ďalšiu nahláška</button>
+<button class="btn-s" onclick="goMy()">Zobraziť moje nahlásky</button>
+</div>
+</div>
+
+</div>
+<script>
+var DB = {
+  "645":{name:"Róbert Ács",ini:"RÁ",home:null,firma:"BIA"},
+  "032":{name:"Ivan Andacký",ini:"IA",home:null,firma:"BIA"},
+  "695":{name:"Andrea Baková",ini:"AB",home:null,firma:"BIA"},
+  "524":{name:"Monika Balážiková",ini:"MB",home:null,firma:"BIA"},
+  "404":{name:"Veronika Balážiková",ini:"VB",home:null,firma:"BIA"},
+  "284":{name:"Zuzana Balážiková",ini:"ZB",home:null,firma:"BIA"},
+  "406":{name:"Erika Bartová",ini:"EB",home:null,firma:"BIA"},
+  "820":{name:"Samuel Beneš",ini:"SB",home:null,firma:"BIA"},
+  "794":{name:"Denisa Biháriová",ini:"DB",home:null,firma:"BIA"},
+  "417":{name:"Veronika Birkušová",ini:"VB",home:null,firma:"BIA"},
+  "819":{name:"Štefan Bleho",ini:"ŠB",home:null,firma:"BIA"},
+  "761":{name:"Matúš Bohuš",ini:"MB",home:null,firma:"BIA"},
+  "273":{name:"Michal Bosák",ini:"MB",home:null,firma:"BIA"},
+  "755":{name:"Alena Bosáková",ini:"AB",home:null,firma:"BIA"},
+  "376":{name:"Božena Britvíková",ini:"BB",home:null,firma:"BIA"},
+  "643":{name:"Lilla Bugyik",ini:"LB",home:null,firma:"BIA"},
+  "306":{name:"Martin Candrák",ini:"MC",home:null,firma:"BIA"},
+  "447":{name:"Peter Civáň",ini:"PC",home:null,firma:"BIA"},
+  "322":{name:"Ladislav Csámpay",ini:"LC",home:null,firma:"BIA"},
+  "222":{name:"Ingrid Čanaky",ini:"IČ",home:null,firma:"BIA"},
+  "579":{name:"Zdenka Čanjiová",ini:"ZČ",home:null,firma:"BIA"},
+  "501":{name:"Lýdia Depešová",ini:"LD",home:null,firma:"BIA"},
+  "699":{name:"Beáta Dingová",ini:"BD",home:null,firma:"BIA"},
+  "783":{name:"Adam Ďubek",ini:"AĎ",home:null,firma:"BIA"},
+  "468":{name:"Miroslava Ďurejová",ini:"MĎ",home:null,firma:"BIA"},
+  "469":{name:"Lýdia Fáberová",ini:"LF",home:null,firma:"BIA"},
+  "499":{name:"Renáta Fábryová",ini:"RF",home:null,firma:"BIA"},
+  "317":{name:"Renáta Fačkovcová",ini:"RF",home:null,firma:"BIA"},
+  "405":{name:"Eva Galbavá",ini:"EG",home:null,firma:"BIA"},
+  "481":{name:"Iveta Gavaľa( rod.Prachárová)",ini:"IG",home:null,firma:"BIA"},
+  "473":{name:"Marcela Gričová",ini:"MG",home:null,firma:"BIA"},
+  "366":{name:"Dana Guzmická",ini:"DG",home:null,firma:"BIA"},
+  "801":{name:"Iveta Heráková",ini:"IH",home:null,firma:"BIA"},
+  "716":{name:"Adrián Horváth",ini:"AH",home:null,firma:"BIA"},
+  "810":{name:"Inna Hrytsenko",ini:"IH",home:null,firma:"BIA"},
+  "164":{name:"Miroslava Hudecová",ini:"MH",home:null,firma:"BIA"},
+  "092":{name:"Stanislav Hunka",ini:"SH",home:null,firma:"BIA"},
+  "425":{name:"Vincent Hurta",ini:"VH",home:null,firma:"BIA"},
+  "189":{name:"Iveta Chovancová",ini:"IC",home:null,firma:"BIA"},
+  "494":{name:"Janka Chovancová",ini:"JC",home:null,firma:"BIA"},
+  "248":{name:"Timea Chovancová",ini:"TC",home:null,firma:"BIA"},
+  "474":{name:"Monika Chudá",ini:"MC",home:null,firma:"BIA"},
+  "621":{name:"Juraj Jančovič",ini:"JJ",home:null,firma:"BIA"},
+  "640":{name:"Martin Janík",ini:"MJ",home:null,firma:"BIA"},
+  "624":{name:"Renáta Jurišová",ini:"RJ",home:null,firma:"BIA"},
+  "241":{name:"Katarína Kapustová",ini:"KK",home:null,firma:"BIA"},
+  "051":{name:"Zdenka Kapustová",ini:"ZK",home:null,firma:"BIA"},
+  "547":{name:"Denisa Keresztesová",ini:"DK",home:null,firma:"BIA"},
+  "084":{name:"Peter Kiaček",ini:"PK",home:null,firma:"BIA"},
+  "511":{name:"Angelika Kiačková",ini:"AK",home:null,firma:"BIA"},
+  "298":{name:"Monika Kolárová ( rod.Karafová)",ini:"MK",home:null,firma:"BIA"},
+  "508":{name:"Ivan Kollár",ini:"IK",home:null,firma:"BIA"},
+  "380":{name:"Jozef Kollár",ini:"JK",home:null,firma:"BIA"},
+  "261":{name:"Iveta Kollárová",ini:"IK",home:null,firma:"BIA"},
+  "083":{name:"Daša Košlabová",ini:"DK",home:null,firma:"BIA"},
+  "802":{name:"Katarína Košútová",ini:"KK",home:null,firma:"BIA"},
+  "620":{name:"Beáta Kráľová",ini:"BK",home:null,firma:"BIA"},
+  "433":{name:"Katarína Kratochvílová",ini:"KK",home:null,firma:"BIA"},
+  "210":{name:"Samuel Krištof",ini:"SK",home:null,firma:"BIA"},
+  "507":{name:"Lívia Krupánszka",ini:"LK",home:null,firma:"BIA"},
+  "739":{name:"Andrej Kukan",ini:"AK",home:null,firma:"BIA"},
+  "720":{name:"Ján Kulich",ini:"JK",home:null,firma:"BIA"},
+  "463":{name:"Peter Lacina",ini:"PL",home:null,firma:"BIA"},
+  "314":{name:"Iveta Lacková",ini:"IL",home:null,firma:"BIA"},
+  "151":{name:"Eva Lániková",ini:"EL",home:null,firma:"BIA"},
+  "343":{name:"Kristína Lauková",ini:"KL",home:null,firma:"BIA"},
+  "718":{name:"Miroslava Lazarová",ini:"ML",home:null,firma:"BIA"},
+  "352":{name:"Mariana Madejová",ini:"MM",home:null,firma:"BIA"},
+  "704":{name:"Lucia Maglódiová",ini:"LM",home:null,firma:"BIA"},
+  "791":{name:"Ľubomír Markovič",ini:"ĽM",home:null,firma:"BIA"},
+  "230":{name:"Ľudmila Martonková",ini:"ĽM",home:null,firma:"BIA"},
+  "478":{name:"Silvia Mihalovičová",ini:"SM",home:null,firma:"BIA"},
+  "079":{name:"Jozef Mikula",ini:"JM",home:null,firma:"BIA"},
+  "047":{name:"Viera Močková",ini:"VM",home:null,firma:"BIA"},
+  "080":{name:"Ľubomír Mokrička",ini:"ĽM",home:null,firma:"BIA"},
+  "600":{name:"Andrea Mrlíková",ini:"AM",home:null,firma:"BIA"},
+  "804":{name:"Ľubomír Néma",ini:"ĽN",home:null,firma:"BIA"},
+  "685":{name:"Juraj Novotný",ini:"JN",home:null,firma:"BIA"},
+  "626":{name:"Emília Olahová",ini:"EO",home:null,firma:"BIA"},
+  "402":{name:"Božena Orlíková",ini:"BO",home:null,firma:"BIA"},
+  "771":{name:"Roman Pavlovič",ini:"RP",home:null,firma:"BIA"},
+  "086":{name:"Peter Peterka",ini:"PP",home:null,firma:"BIA"},
+  "668":{name:"Oksana Pilchyk",ini:"OP",home:null,firma:"BIA"},
+  "471":{name:"Katarína Pindešová (rod. Genčíková)",ini:"KP",home:null,firma:"BIA"},
+  "661":{name:"Renáta Piskóová",ini:"RP",home:null,firma:"BIA"},
+  "119":{name:"Juraj Plevka",ini:"JP",home:null,firma:"BIA"},
+  "309":{name:"Gabriela Poliaková",ini:"GP",home:null,firma:"BIA"},
+  "442":{name:"Erika Prešinská",ini:"EP",home:null,firma:"BIA"},
+  "629":{name:"Ľubomíra Romanová",ini:"ĽR",home:null,firma:"BIA"},
+  "529":{name:"Martin Rusňák",ini:"MR",home:null,firma:"BIA"},
+  "112":{name:"Justína Rusóová",ini:"JR",home:null,firma:"BIA"},
+  "266":{name:"Renáta Selecká",ini:"RS",home:null,firma:"BIA"},
+  "815":{name:"Alona Shamrai",ini:"AS",home:null,firma:"BIA"},
+  "307":{name:"Darina Slážiková",ini:"DS",home:null,firma:"BIA"},
+  "712":{name:"Peter Stankovský",ini:"PS",home:null,firma:"BIA"},
+  "670":{name:"Zuzana Šarinová",ini:"ZŠ",home:null,firma:"BIA"},
+  "651":{name:"Dana Škodová",ini:"DŠ",home:null,firma:"BIA"},
+  "334":{name:"Michal Špánik",ini:"MŠ",home:null,firma:"BIA"},
+  "808":{name:"Ján Uhlár",ini:"JU",home:null,firma:"BIA"},
+  "708":{name:"Jozefína Uhlárová",ini:"JU",home:null,firma:"BIA"},
+  "734":{name:"Ivan Uhrík",ini:"IU",home:null,firma:"BIA"},
+  "798":{name:"Nataliia Ushakova",ini:"NU",home:null,firma:"BIA"},
+  "053":{name:"Jana Valachová",ini:"JV",home:null,firma:"BIA"},
+  "500":{name:"Danka Valentová",ini:"DV",home:null,firma:"BIA"},
+  "385":{name:"Maroš Vaňovič",ini:"MV",home:null,firma:"BIA"},
+  "759":{name:"Ladislava Vaňovičová",ini:"LV",home:null,firma:"BIA"},
+  "792":{name:"Lucia Vaňovičová",ini:"LV",home:null,firma:"BIA"},
+  "351":{name:"Katarína Verešová",ini:"KV",home:null,firma:"BIA"},
+  "623":{name:"Zuzana Zavadilová",ini:"ZZ",home:null,firma:"BIA"},
+  "171":{name:"Jozef Zeliska",ini:"JZ",home:null,firma:"BIA"},
+  "361":{name:"Lucia Zelisková",ini:"LZ",home:null,firma:"BIA"},
+  "324":{name:"Zuzana Zimmermanová",ini:"ZZ",home:null,firma:"BIA"},
+  "1503":{name:"Olena Khotsko",ini:"OK",home:null,firma:"BIA"},
+  "1516":{name:"Oleksandr Dolhii",ini:"OD",home:null,firma:"BIA"},
+  "1539":{name:"Ivan Vasylyk",ini:"IV",home:null,firma:"BIA"},
+  "1558":{name:"Tatiana Bon",ini:"TB",home:null,firma:"BIA"},
+  "1529":{name:"Ivan Dumnych",ini:"ID",home:null,firma:"BIA"},
+  "1548":{name:"Olha Demianiv",ini:"OD",home:null,firma:"BIA"},
+  "1556":{name:"Vladyslav Mykhniuk",ini:"VM",home:null,firma:"BIA"},
+  "1559":{name:"Vadim Marchevski",ini:"VM",home:null,firma:"BIA"},
+  "1569":{name:"Larisa Dumnych",ini:"LD",home:null,firma:"BIA"},
+  "1571":{name:"Volodymyr Biloskirka",ini:"VB",home:null,firma:"BIA"},
+  "1574":{name:"Yuliia Dudnyk",ini:"YD",home:null,firma:"BIA"},
+  "1575":{name:"Alina Danchylo",ini:"AD",home:null,firma:"BIA"},
+  "1577":{name:"Mariana Kryvonosova",ini:"MK",home:null,firma:"BIA"},
+  "1582":{name:"Volodymyr Perepagya",ini:"VP",home:null,firma:"BIA"},
+  "1583":{name:"Natalia Zhyrukha",ini:"NZ",home:null,firma:"BIA"},
+  "1585":{name:"Vasil Danchylo",ini:"VD",home:null,firma:"BIA"},
+  "1587":{name:"Artur Kolomyiets",ini:"AK",home:null,firma:"BIA"},
+  "1589":{name:"Vira Hrytsun",ini:"VH",home:null,firma:"BIA"},
+  "1590":{name:"Levente Bado",ini:"LB",home:null,firma:"BIA"},
+  "1591":{name:"Halyna Volos",ini:"HV",home:null,firma:"BIA"},
+  "1579":{name:"Radoslav Uhrín",ini:"RU",home:null,firma:"BIA"},
+}; // BIA zamestnanci
+var SHIFTS = [
+  {k:"06:00-14:00", lb:"06-14", nm:"Ranná"},
+  {k:"14:00-22:00", lb:"14-22", nm:"Poobedná"},
+  {k:"22:00-06:00", lb:"22-06", nm:"Nočná"},
+  {k:"06:00-18:00", lb:"06-18", nm:"Dlhá ranná"},
+  {k:"14:00-02:00", lb:"14-02", nm:"Dlhá poob."},
+  {k:"22:00-10:00", lb:"22-10", nm:"Dlhá nočná"},
+  {k:"18:00-06:00", lb:"18-06", nm:"Večerná"},
+  {k:"08:00-16:00", lb:"08-16", nm:"Admin"}
+];
+var LINES = {
+  L1:{n:1, nm:"Nitra - Lužianky - Zbehy", sh:{
+    "06:00-14:00":[{s:"Nitra, Chrenovský cintorín OD NAY",t:"04:58"},{s:"Nitra, Tr.A.Hlinku II. - atlet.štadión",t:"05:00"},{s:"Nitra, Tr.A.Hlinku - CENTRO",t:"05:02"},{s:"Nitra, CENTRUM Mlyny",t:"05:05"},{s:"Nitra, Rázc.Žel.stanica",t:"05:09"},{s:"Nitra, Čermáň - Kostolná - pri kríži",t:"05:12"},{s:"Nitra, Klokočina - Mestská Hala",t:"05:13"},{s:"Nitra, ZŠ Škultétyho",t:"05:14"},{s:"Nitra, Klokočina - Mikovíniho",t:"05:16"},{s:"Nitra, Klokočina - Bizetova",t:"05:18"},{s:"Nitra, Klokočina - Kmeťova",t:"05:20"},{s:"Nitra, Klokočina - Murániho",t:"05:21"},{s:"Nitra, Mlynárce - cintorín",t:"05:22"},{s:"Lužianky, rázcestie Víno Nitra",t:"05:29"},{s:"Lužianky, Korytovská",t:"05:30"},{s:"Lužianky, Základná škola",t:"05:31"},{s:"Lužianky, Holotka, fi.BUCH",t:"05:33"},{s:"Zbehy, kostol",t:"05:34"},{s:"Zbehy, Mlyn",t:"05:35"},{s:"Zbehy, domovina",t:"05:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-22:00":[{s:"Nitra, Chrenovský cintorín OD NAY",t:"12:58"},{s:"Nitra, Tr.A.Hlinku II. - atlet.štadión",t:"13:00"},{s:"Nitra, Tr.A.Hlinku - CENTRO",t:"13:02"},{s:"Nitra, CENTRUM Mlyny",t:"13:05"},{s:"Nitra, Rázc.Žel.stanica",t:"13:09"},{s:"Nitra, Čermáň - Kostolná - pri kríži",t:"13:12"},{s:"Nitra, Klokočina - Mestská Hala",t:"13:13"},{s:"Nitra, ZŠ Škultétyho",t:"13:14"},{s:"Nitra, Klokočina - Mikovíniho",t:"13:16"},{s:"Nitra, Klokočina - Bizetova",t:"13:18"},{s:"Nitra, Klokočina - Kmeťova",t:"13:20"},{s:"Nitra, Klokočina - Murániho",t:"13:21"},{s:"Nitra, Mlynárce - cintorín",t:"13:22"},{s:"Lužianky, rázcestie Víno Nitra",t:"13:29"},{s:"Lužianky, Korytovská",t:"13:30"},{s:"Lužianky, Základná škola",t:"13:31"},{s:"Lužianky, Holotka, fi.BUCH",t:"13:33"},{s:"Zbehy, kostol",t:"13:34"},{s:"Zbehy, Mlyn",t:"13:35"},{s:"Zbehy, domovina",t:"13:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-06:00":[{s:"Nitra, Chrenovský cintorín OD NAY",t:"20:58"},{s:"Nitra, Tr.A.Hlinku II. - atlet.štadión",t:"21:00"},{s:"Nitra, Tr.A.Hlinku - CENTRO",t:"21:02"},{s:"Nitra, CENTRUM Mlyny",t:"21:05"},{s:"Nitra, Rázc.Žel.stanica",t:"21:09"},{s:"Nitra, Čermáň - Kostolná - pri kríži",t:"21:12"},{s:"Nitra, Klokočina - Mestská Hala",t:"21:13"},{s:"Nitra, ZŠ Škultétyho",t:"21:14"},{s:"Nitra, Klokočina - Mikovíniho",t:"21:16"},{s:"Nitra, Klokočina - Bizetova",t:"21:18"},{s:"Nitra, Klokočina - Kmeťova",t:"21:20"},{s:"Nitra, Klokočina - Murániho",t:"21:21"},{s:"Nitra, Mlynárce - cintorín",t:"21:22"},{s:"Lužianky, rázcestie Víno Nitra",t:"21:29"},{s:"Lužianky, Korytovská",t:"21:30"},{s:"Lužianky, Základná škola",t:"21:31"},{s:"Lužianky, Holotka, fi.BUCH",t:"21:33"},{s:"Zbehy, kostol",t:"21:34"},{s:"Zbehy, Mlyn",t:"21:35"},{s:"Zbehy, domovina",t:"21:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "06:00-18:00":[{s:"Nitra, Chrenovský cintorín OD NAY",t:"04:58"},{s:"Nitra, Tr.A.Hlinku II. - atlet.štadión",t:"05:00"},{s:"Nitra, Tr.A.Hlinku - CENTRO",t:"05:02"},{s:"Nitra, CENTRUM Mlyny",t:"05:05"},{s:"Nitra, Rázc.Žel.stanica",t:"05:09"},{s:"Nitra, Čermáň - Kostolná - pri kríži",t:"05:12"},{s:"Nitra, Klokočina - Mestská Hala",t:"05:13"},{s:"Nitra, ZŠ Škultétyho",t:"05:14"},{s:"Nitra, Klokočina - Mikovíniho",t:"05:16"},{s:"Nitra, Klokočina - Bizetova",t:"05:18"},{s:"Nitra, Klokočina - Kmeťova",t:"05:20"},{s:"Nitra, Klokočina - Murániho",t:"05:21"},{s:"Nitra, Mlynárce - cintorín",t:"05:22"},{s:"Lužianky, rázcestie Víno Nitra",t:"05:29"},{s:"Lužianky, Korytovská",t:"05:30"},{s:"Lužianky, Základná škola",t:"05:31"},{s:"Lužianky, Holotka, fi.BUCH",t:"05:33"},{s:"Zbehy, kostol",t:"05:34"},{s:"Zbehy, Mlyn",t:"05:35"},{s:"Zbehy, domovina",t:"05:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-02:00":[{s:"Nitra, Chrenovský cintorín OD NAY",t:"12:58"},{s:"Nitra, Tr.A.Hlinku II. - atlet.štadión",t:"13:00"},{s:"Nitra, Tr.A.Hlinku - CENTRO",t:"13:02"},{s:"Nitra, CENTRUM Mlyny",t:"13:05"},{s:"Nitra, Rázc.Žel.stanica",t:"13:09"},{s:"Nitra, Čermáň - Kostolná - pri kríži",t:"13:12"},{s:"Nitra, Klokočina - Mestská Hala",t:"13:13"},{s:"Nitra, ZŠ Škultétyho",t:"13:14"},{s:"Nitra, Klokočina - Mikovíniho",t:"13:16"},{s:"Nitra, Klokočina - Bizetova",t:"13:18"},{s:"Nitra, Klokočina - Kmeťova",t:"13:20"},{s:"Nitra, Klokočina - Murániho",t:"13:21"},{s:"Nitra, Mlynárce - cintorín",t:"13:22"},{s:"Lužianky, rázcestie Víno Nitra",t:"13:29"},{s:"Lužianky, Korytovská",t:"13:30"},{s:"Lužianky, Základná škola",t:"13:31"},{s:"Lužianky, Holotka, fi.BUCH",t:"13:33"},{s:"Zbehy, kostol",t:"13:34"},{s:"Zbehy, Mlyn",t:"13:35"},{s:"Zbehy, domovina",t:"13:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-10:00":[{s:"Nitra, Chrenovský cintorín OD NAY",t:"20:58"},{s:"Nitra, Tr.A.Hlinku II. - atlet.štadión",t:"21:00"},{s:"Nitra, Tr.A.Hlinku - CENTRO",t:"21:02"},{s:"Nitra, CENTRUM Mlyny",t:"21:05"},{s:"Nitra, Rázc.Žel.stanica",t:"21:09"},{s:"Nitra, Čermáň - Kostolná - pri kríži",t:"21:12"},{s:"Nitra, Klokočina - Mestská Hala",t:"21:13"},{s:"Nitra, ZŠ Škultétyho",t:"21:14"},{s:"Nitra, Klokočina - Mikovíniho",t:"21:16"},{s:"Nitra, Klokočina - Bizetova",t:"21:18"},{s:"Nitra, Klokočina - Kmeťova",t:"21:20"},{s:"Nitra, Klokočina - Murániho",t:"21:21"},{s:"Nitra, Mlynárce - cintorín",t:"21:22"},{s:"Lužianky, rázcestie Víno Nitra",t:"21:29"},{s:"Lužianky, Korytovská",t:"21:30"},{s:"Lužianky, Základná škola",t:"21:31"},{s:"Lužianky, Holotka, fi.BUCH",t:"21:33"},{s:"Zbehy, kostol",t:"21:34"},{s:"Zbehy, Mlyn",t:"21:35"},{s:"Zbehy, domovina",t:"21:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "18:00-06:00":[{s:"Nitra, Chrenovský cintorín OD NAY",t:"10:58"},{s:"Nitra, Tr.A.Hlinku II. - atlet.štadión",t:"11:00"},{s:"Nitra, Tr.A.Hlinku - CENTRO",t:"11:02"},{s:"Nitra, CENTRUM Mlyny",t:"11:05"},{s:"Nitra, Rázc.Žel.stanica",t:"11:09"},{s:"Nitra, Čermáň - Kostolná - pri kríži",t:"11:12"},{s:"Nitra, Klokočina - Mestská Hala",t:"11:13"},{s:"Nitra, ZŠ Škultétyho",t:"11:14"},{s:"Nitra, Klokočina - Mikovíniho",t:"11:16"},{s:"Nitra, Klokočina - Bizetova",t:"11:18"},{s:"Nitra, Klokočina - Kmeťova",t:"11:20"},{s:"Nitra, Klokočina - Murániho",t:"11:21"},{s:"Nitra, Mlynárce - cintorín",t:"11:22"},{s:"Lužianky, rázcestie Víno Nitra",t:"11:29"},{s:"Lužianky, Korytovská",t:"11:30"},{s:"Lužianky, Základná škola",t:"11:31"},{s:"Lužianky, Holotka, fi.BUCH",t:"11:33"},{s:"Zbehy, kostol",t:"11:34"},{s:"Zbehy, Mlyn",t:"11:35"},{s:"Zbehy, domovina",t:"11:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"11:45"}]
+  }},
+  L2:{n:2, nm:"Lúžany - Krtovce - Nitr.Blatnica - Radošina - V.Ripňany - Nové Sady", sh:{
+    "06:00-14:00":[{s:"Lužany, kostol",t:"04:40"},{s:"Nitrianska Blatnica, 1.BUS zast.od Radošiny",t:"04:50"},{s:"Lužany, OU",t:"04:43"},{s:"Krtovce, OU",t:"04:52"},{s:"Nitrianska Blatnica, námestie pošta",t:"04:58"},{s:"Nitrianska Blatnica, domovina",t:"05:00"},{s:"Radošina, rázcestie",t:"05:05"},{s:"Radošina, domovina",t:"05:06"},{s:"Behynce, BUS zastávka",t:"05:10"},{s:"Veľké Ripňany, rázc.Topoľčianska",t:"05:13"},{s:"Veľké Ripňany, Jednota",t:"05:15"},{s:"Malé Ripňany, Cintorín",t:"05:19"},{s:"Biskupová, BUS zastávka",t:"05:22"},{s:"Malé Zálužie, BUS zastávka",t:"05:25"},{s:"Nové Sady, domovina",t:"05:28"},{s:"Nové Sady, ZŠ",t:"05:30"},{s:"Nové Sady, Sila,rázc.",t:"05:33"},{s:"Čab, Jednota",t:"05:35"},{s:"Čab, domovina",t:"05:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-22:00":[{s:"Lužany, kostol",t:"12:40"},{s:"Nitrianska Blatnica, 1.BUS zast.od Radošiny",t:"12:50"},{s:"Lužany, OU",t:"12:43"},{s:"Krtovce, OU",t:"12:52"},{s:"Nitrianska Blatnica, námestie pošta",t:"12:58"},{s:"Nitrianska Blatnica, domovina",t:"13:00"},{s:"Radošina, rázcestie",t:"13:05"},{s:"Radošina, domovina",t:"13:06"},{s:"Behynce, BUS zastávka",t:"13:10"},{s:"Veľké Ripňany, rázc.Topoľčianska",t:"13:13"},{s:"Veľké Ripňany, Jednota",t:"13:15"},{s:"Malé Ripňany, Cintorín",t:"13:19"},{s:"Biskupová, BUS zastávka",t:"13:22"},{s:"Malé Zálužie, BUS zastávka",t:"13:25"},{s:"Nové Sady, domovina",t:"13:28"},{s:"Nové Sady, ZŠ",t:"13:30"},{s:"Nové Sady, Sila,rázc.",t:"13:33"},{s:"Čab, Jednota",t:"13:35"},{s:"Čab, domovina",t:"13:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-06:00":[{s:"Lužany, kostol",t:"20:40"},{s:"Nitrianska Blatnica, 1.BUS zast.od Radošiny",t:"20:50"},{s:"Lužany, OU",t:"20:43"},{s:"Krtovce, OU",t:"20:52"},{s:"Nitrianska Blatnica, námestie pošta",t:"20:58"},{s:"Nitrianska Blatnica, domovina",t:"21:00"},{s:"Radošina, rázcestie",t:"21:05"},{s:"Radošina, domovina",t:"21:06"},{s:"Behynce, BUS zastávka",t:"21:10"},{s:"Veľké Ripňany, rázc.Topoľčianska",t:"21:13"},{s:"Veľké Ripňany, Jednota",t:"21:15"},{s:"Malé Ripňany, Cintorín",t:"21:19"},{s:"Biskupová, BUS zastávka",t:"21:22"},{s:"Malé Zálužie, BUS zastávka",t:"21:25"},{s:"Nové Sady, domovina",t:"21:28"},{s:"Nové Sady, ZŠ",t:"21:30"},{s:"Nové Sady, Sila,rázc.",t:"21:33"},{s:"Čab, Jednota",t:"21:35"},{s:"Čab, domovina",t:"21:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "06:00-18:00":[{s:"Lužany, kostol",t:"04:40"},{s:"Nitrianska Blatnica, 1.BUS zast.od Radošiny",t:"04:50"},{s:"Lužany, OU",t:"04:43"},{s:"Krtovce, OU",t:"04:52"},{s:"Nitrianska Blatnica, námestie pošta",t:"04:58"},{s:"Nitrianska Blatnica, domovina",t:"05:00"},{s:"Radošina, rázcestie",t:"05:05"},{s:"Radošina, domovina",t:"05:06"},{s:"Behynce, BUS zastávka",t:"05:10"},{s:"Veľké Ripňany, rázc.Topoľčianska",t:"05:13"},{s:"Veľké Ripňany, Jednota",t:"05:15"},{s:"Malé Ripňany, Cintorín",t:"05:19"},{s:"Biskupová, BUS zastávka",t:"05:22"},{s:"Malé Zálužie, BUS zastávka",t:"05:25"},{s:"Nové Sady, domovina",t:"05:28"},{s:"Nové Sady, ZŠ",t:"05:30"},{s:"Nové Sady, Sila,rázc.",t:"05:33"},{s:"Čab, Jednota",t:"05:35"},{s:"Čab, domovina",t:"05:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-02:00":[{s:"Lužany, kostol",t:"12:40"},{s:"Nitrianska Blatnica, 1.BUS zast.od Radošiny",t:"12:50"},{s:"Lužany, OU",t:"12:43"},{s:"Krtovce, OU",t:"12:52"},{s:"Nitrianska Blatnica, námestie pošta",t:"12:58"},{s:"Nitrianska Blatnica, domovina",t:"13:00"},{s:"Radošina, rázcestie",t:"13:05"},{s:"Radošina, domovina",t:"13:06"},{s:"Behynce, BUS zastávka",t:"13:10"},{s:"Veľké Ripňany, rázc.Topoľčianska",t:"13:13"},{s:"Veľké Ripňany, Jednota",t:"13:15"},{s:"Malé Ripňany, Cintorín",t:"13:19"},{s:"Biskupová, BUS zastávka",t:"13:22"},{s:"Malé Zálužie, BUS zastávka",t:"13:25"},{s:"Nové Sady, domovina",t:"13:28"},{s:"Nové Sady, ZŠ",t:"13:30"},{s:"Nové Sady, Sila,rázc.",t:"13:33"},{s:"Čab, Jednota",t:"13:35"},{s:"Čab, domovina",t:"13:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-10:00":[{s:"Lužany, kostol",t:"20:40"},{s:"Nitrianska Blatnica, 1.BUS zast.od Radošiny",t:"20:50"},{s:"Lužany, OU",t:"20:43"},{s:"Krtovce, OU",t:"20:52"},{s:"Nitrianska Blatnica, námestie pošta",t:"20:58"},{s:"Nitrianska Blatnica, domovina",t:"21:00"},{s:"Radošina, rázcestie",t:"21:05"},{s:"Radošina, domovina",t:"21:06"},{s:"Behynce, BUS zastávka",t:"21:10"},{s:"Veľké Ripňany, rázc.Topoľčianska",t:"21:13"},{s:"Veľké Ripňany, Jednota",t:"21:15"},{s:"Malé Ripňany, Cintorín",t:"21:19"},{s:"Biskupová, BUS zastávka",t:"21:22"},{s:"Malé Zálužie, BUS zastávka",t:"21:25"},{s:"Nové Sady, domovina",t:"21:28"},{s:"Nové Sady, ZŠ",t:"21:30"},{s:"Nové Sady, Sila,rázc.",t:"21:33"},{s:"Čab, Jednota",t:"21:35"},{s:"Čab, domovina",t:"21:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "18:00-06:00":[{s:"Lužany, kostol",t:"10:40"},{s:"Nitrianska Blatnica, 1.BUS zast.od Radošiny",t:"10:50"},{s:"Lužany, OU",t:"10:43"},{s:"Krtovce, OU",t:"10:52"},{s:"Nitrianska Blatnica, námestie pošta",t:"10:58"},{s:"Nitrianska Blatnica, domovina",t:"11:00"},{s:"Radošina, rázcestie",t:"11:05"},{s:"Radošina, domovina",t:"11:06"},{s:"Behynce, BUS zastávka",t:"11:10"},{s:"Veľké Ripňany, rázc.Topoľčianska",t:"11:13"},{s:"Veľké Ripňany, Jednota",t:"11:15"},{s:"Malé Ripňany, Cintorín",t:"11:19"},{s:"Biskupová, BUS zastávka",t:"11:22"},{s:"Malé Zálužie, BUS zastávka",t:"11:25"},{s:"Nové Sady, domovina",t:"11:28"},{s:"Nové Sady, ZŠ",t:"11:30"},{s:"Nové Sady, Sila,rázc.",t:"11:33"},{s:"Čab, Jednota",t:"11:35"},{s:"Čab, domovina",t:"11:36"},{s:"Čab, BOURBON AP / BIA Plastic",t:"11:45"}]
+  }},
+  L3:{n:3, nm:"Merašice - Obsolovce - H.Obdokovce - Hruboňovo - Šurianky", sh:{
+    "06:00-14:00":[{s:"Kapince, č.d.77",t:"04:55"},{s:"Merašice, kostol",t:"04:57"},{s:"Merašice, BUS zastávka",t:"04:58"},{s:"Veľké Ripňany, Vieska",t:"05:03"},{s:"Veľké Ripňany, Stavebniny",t:"05:05"},{s:"Veľké Ripňany, Jednota    PRESTUP",t:"05:08"},{s:"Obsolovce, BUS zastávka",t:"05:12"},{s:"Horné Obdokovce, cintorín",t:"05:15"},{s:"Horné Obdokovce, kaštieľ",t:"05:17"},{s:"Horné Obdokovce, domovina",t:"05:19"},{s:"Čermany, obec",t:"05:23"},{s:"Čermany, rázcestie",t:"05:25"},{s:"Hruboňovo, Výčapky, hl.cesta",t:"05:27"},{s:"Hruboňovo, Suľany, pri kríži, hl.cesta",t:"05:29"},{s:"Hruboňovo, Suľany, RD, hl.cesta",t:"05:30"},{s:"Šurianky, BUS zast.Jednota",t:"05:32"},{s:"Šurianky, dolný koniec",t:"05:33"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-22:00":[{s:"Kapince, č.d.77",t:"12:55"},{s:"Merašice, kostol",t:"12:57"},{s:"Merašice, BUS zastávka",t:"12:58"},{s:"Veľké Ripňany, Vieska",t:"13:03"},{s:"Veľké Ripňany, Stavebniny",t:"13:05"},{s:"Veľké Ripňany, Jednota    PRESTUP",t:"13:08"},{s:"Obsolovce, BUS zastávka",t:"13:12"},{s:"Horné Obdokovce, cintorín",t:"13:15"},{s:"Horné Obdokovce, kaštieľ",t:"13:17"},{s:"Horné Obdokovce, domovina",t:"13:19"},{s:"Čermany, obec",t:"13:23"},{s:"Čermany, rázcestie",t:"13:25"},{s:"Hruboňovo, Výčapky, hl.cesta",t:"13:27"},{s:"Hruboňovo, Suľany, pri kríži, hl.cesta",t:"13:29"},{s:"Hruboňovo, Suľany, RD, hl.cesta",t:"13:30"},{s:"Šurianky, BUS zast.Jednota",t:"13:32"},{s:"Šurianky, dolný koniec",t:"13:33"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-06:00":[{s:"Kapince, č.d.77",t:"20:55"},{s:"Merašice, kostol",t:"20:57"},{s:"Merašice, BUS zastávka",t:"20:58"},{s:"Veľké Ripňany, Vieska",t:"21:03"},{s:"Veľké Ripňany, Stavebniny",t:"21:05"},{s:"Veľké Ripňany, Jednota    PRESTUP",t:"21:08"},{s:"Obsolovce, BUS zastávka",t:"21:12"},{s:"Horné Obdokovce, cintorín",t:"21:15"},{s:"Horné Obdokovce, kaštieľ",t:"21:17"},{s:"Horné Obdokovce, domovina",t:"21:19"},{s:"Čermany, obec",t:"21:23"},{s:"Čermany, rázcestie",t:"21:25"},{s:"Hruboňovo, Výčapky, hl.cesta",t:"21:27"},{s:"Hruboňovo, Suľany, pri kríži, hl.cesta",t:"21:29"},{s:"Hruboňovo, Suľany, RD, hl.cesta",t:"21:30"},{s:"Šurianky, BUS zast.Jednota",t:"21:32"},{s:"Šurianky, dolný koniec",t:"21:33"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "06:00-18:00":[{s:"Kapince, č.d.77",t:"04:55"},{s:"Merašice, kostol",t:"04:57"},{s:"Merašice, BUS zastávka",t:"04:58"},{s:"Veľké Ripňany, Vieska",t:"05:03"},{s:"Veľké Ripňany, Stavebniny",t:"05:05"},{s:"Veľké Ripňany, Jednota    PRESTUP",t:"05:08"},{s:"Obsolovce, BUS zastávka",t:"05:12"},{s:"Horné Obdokovce, cintorín",t:"05:15"},{s:"Horné Obdokovce, kaštieľ",t:"05:17"},{s:"Horné Obdokovce, domovina",t:"05:19"},{s:"Čermany, obec",t:"05:23"},{s:"Čermany, rázcestie",t:"05:25"},{s:"Hruboňovo, Výčapky, hl.cesta",t:"05:27"},{s:"Hruboňovo, Suľany, pri kríži, hl.cesta",t:"05:29"},{s:"Hruboňovo, Suľany, RD, hl.cesta",t:"05:30"},{s:"Šurianky, BUS zast.Jednota",t:"05:32"},{s:"Šurianky, dolný koniec",t:"05:33"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-02:00":[{s:"Kapince, č.d.77",t:"12:55"},{s:"Merašice, kostol",t:"12:57"},{s:"Merašice, BUS zastávka",t:"12:58"},{s:"Veľké Ripňany, Vieska",t:"13:03"},{s:"Veľké Ripňany, Stavebniny",t:"13:05"},{s:"Veľké Ripňany, Jednota    PRESTUP",t:"13:08"},{s:"Obsolovce, BUS zastávka",t:"13:12"},{s:"Horné Obdokovce, cintorín",t:"13:15"},{s:"Horné Obdokovce, kaštieľ",t:"13:17"},{s:"Horné Obdokovce, domovina",t:"13:19"},{s:"Čermany, obec",t:"13:23"},{s:"Čermany, rázcestie",t:"13:25"},{s:"Hruboňovo, Výčapky, hl.cesta",t:"13:27"},{s:"Hruboňovo, Suľany, pri kríži, hl.cesta",t:"13:29"},{s:"Hruboňovo, Suľany, RD, hl.cesta",t:"13:30"},{s:"Šurianky, BUS zast.Jednota",t:"13:32"},{s:"Šurianky, dolný koniec",t:"13:33"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-10:00":[{s:"Kapince, č.d.77",t:"20:55"},{s:"Merašice, kostol",t:"20:57"},{s:"Merašice, BUS zastávka",t:"20:58"},{s:"Veľké Ripňany, Vieska",t:"21:03"},{s:"Veľké Ripňany, Stavebniny",t:"21:05"},{s:"Veľké Ripňany, Jednota    PRESTUP",t:"21:08"},{s:"Obsolovce, BUS zastávka",t:"21:12"},{s:"Horné Obdokovce, cintorín",t:"21:15"},{s:"Horné Obdokovce, kaštieľ",t:"21:17"},{s:"Horné Obdokovce, domovina",t:"21:19"},{s:"Čermany, obec",t:"21:23"},{s:"Čermany, rázcestie",t:"21:25"},{s:"Hruboňovo, Výčapky, hl.cesta",t:"21:27"},{s:"Hruboňovo, Suľany, pri kríži, hl.cesta",t:"21:29"},{s:"Hruboňovo, Suľany, RD, hl.cesta",t:"21:30"},{s:"Šurianky, BUS zast.Jednota",t:"21:32"},{s:"Šurianky, dolný koniec",t:"21:33"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "18:00-06:00":[{s:"Kapince, č.d.77",t:"10:55"},{s:"Merašice, kostol",t:"10:57"},{s:"Merašice, BUS zastávka",t:"10:58"},{s:"Veľké Ripňany, Vieska",t:"11:03"},{s:"Veľké Ripňany, Stavebniny",t:"11:05"},{s:"Veľké Ripňany, Jednota    PRESTUP",t:"11:08"},{s:"Obsolovce, BUS zastávka",t:"11:12"},{s:"Horné Obdokovce, cintorín",t:"11:15"},{s:"Horné Obdokovce, kaštieľ",t:"11:17"},{s:"Horné Obdokovce, domovina",t:"11:19"},{s:"Čermany, obec",t:"11:23"},{s:"Čermany, rázcestie",t:"11:25"},{s:"Hruboňovo, Výčapky, hl.cesta",t:"11:27"},{s:"Hruboňovo, Suľany, pri kríži, hl.cesta",t:"11:29"},{s:"Hruboňovo, Suľany, RD, hl.cesta",t:"11:30"},{s:"Šurianky, BUS zast.Jednota",t:"11:32"},{s:"Šurianky, dolný koniec",t:"11:33"},{s:"Čab, BOURBON AP / BIA Plastic",t:"11:45"}]
+  }},
+  L4:{n:4, nm:"Topoľčany - Solčany - Oponice - Preseľany - D.Lefantovce - Výčapy", sh:{
+    "06:00-14:00":[{s:"Topoľčany,Krušovská ELEKTRO",t:"04:40"},{s:"Topoľčany,sídl.Východ - BUS zastávka",t:"04:43"},{s:"Solčany, ZŠ",t:"04:48"},{s:"Nitrianska Streda",t:"04:50"},{s:"Čeľadince",t:"04:51"},{s:"Kovárce, Jednota",t:"04:53"},{s:"Oponice, kostol",t:"04:58"},{s:"Ludanice, penzion ALTANA",t:"05:05"},{s:"Ludanice, ZŠ",t:"05:07"},{s:"Dvorany n.Nitrou, rázc.",t:"05:08"},{s:"Mýtna n/V, BUS zastávka",t:"05:09"},{s:"Kamanová, Obecný úrad",t:"05:11"},{s:"Kamanová,,rázc.k žel.st.",t:"05:12"},{s:"Preseľany, Jednota",t:"05:15"},{s:"Preseľany, ZŠ",t:"05:17"},{s:"Hrušovavy, Topoľčianska",t:"05:18"},{s:"Hrušovavy, kostol",t:"05:19"},{s:"Dolné Lefantovce, Obecný úrad",t:"05:23"},{s:"Koniarovce, rázc.k žel.stanici",t:"05:26"},{s:"Výčapy-Opatovce,IV",t:"05:28"},{s:"Výčapy-Opatovce,III",t:"05:29"},{s:"Výčapy-Opatovce,II",t:"05:30"},{s:"Výčapy-Opatovce,I",t:"05:31"},{s:"Jelšovce, pohostisntvo",t:"05:32"},{s:"Jelšovce, Obecný úrad",t:"05:33"},{s:"Čakajovce, Základná škola",t:"05:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-22:00":[{s:"Topoľčany,Krušovská ELEKTRO",t:"12:40"},{s:"Topoľčany,sídl.Východ - BUS zastávka",t:"12:43"},{s:"Solčany, ZŠ",t:"12:48"},{s:"Nitrianska Streda",t:"12:50"},{s:"Čeľadince",t:"12:51"},{s:"Kovárce, Jednota",t:"12:53"},{s:"Oponice, kostol",t:"12:58"},{s:"Ludanice, penzion ALTANA",t:"13:05"},{s:"Ludanice, ZŠ",t:"13:07"},{s:"Dvorany n.Nitrou, rázc.",t:"13:08"},{s:"Mýtna n/V, BUS zastávka",t:"13:09"},{s:"Kamanová, Obecný úrad",t:"13:11"},{s:"Kamanová,,rázc.k žel.st.",t:"13:12"},{s:"Preseľany, Jednota",t:"13:15"},{s:"Preseľany, ZŠ",t:"13:17"},{s:"Hrušovavy, Topoľčianska",t:"13:18"},{s:"Hrušovavy, kostol",t:"13:19"},{s:"Dolné Lefantovce, Obecný úrad",t:"13:23"},{s:"Koniarovce, rázc.k žel.stanici",t:"13:26"},{s:"Výčapy-Opatovce,IV",t:"13:28"},{s:"Výčapy-Opatovce,III",t:"13:29"},{s:"Výčapy-Opatovce,II",t:"13:30"},{s:"Výčapy-Opatovce,I",t:"13:31"},{s:"Jelšovce, pohostisntvo",t:"13:32"},{s:"Jelšovce, Obecný úrad",t:"13:33"},{s:"Čakajovce, Základná škola",t:"13:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-06:00":[{s:"Topoľčany,Krušovská ELEKTRO",t:"20:40"},{s:"Topoľčany,sídl.Východ - BUS zastávka",t:"20:43"},{s:"Solčany, ZŠ",t:"20:48"},{s:"Nitrianska Streda",t:"20:50"},{s:"Čeľadince",t:"20:51"},{s:"Kovárce, Jednota",t:"20:53"},{s:"Oponice, kostol",t:"20:58"},{s:"Ludanice, penzion ALTANA",t:"21:05"},{s:"Ludanice, ZŠ",t:"21:07"},{s:"Dvorany n.Nitrou, rázc.",t:"21:08"},{s:"Mýtna n/V, BUS zastávka",t:"21:09"},{s:"Kamanová, Obecný úrad",t:"21:11"},{s:"Kamanová,,rázc.k žel.st.",t:"21:12"},{s:"Preseľany, Jednota",t:"21:15"},{s:"Preseľany, ZŠ",t:"21:17"},{s:"Hrušovavy, Topoľčianska",t:"21:18"},{s:"Hrušovavy, kostol",t:"21:19"},{s:"Dolné Lefantovce, Obecný úrad",t:"21:23"},{s:"Koniarovce, rázc.k žel.stanici",t:"21:26"},{s:"Výčapy-Opatovce,IV",t:"21:28"},{s:"Výčapy-Opatovce,III",t:"21:29"},{s:"Výčapy-Opatovce,II",t:"21:30"},{s:"Výčapy-Opatovce,I",t:"21:31"},{s:"Jelšovce, pohostisntvo",t:"21:32"},{s:"Jelšovce, Obecný úrad",t:"21:33"},{s:"Čakajovce, Základná škola",t:"21:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "06:00-18:00":[{s:"Topoľčany,Krušovská ELEKTRO",t:"04:40"},{s:"Topoľčany,sídl.Východ - BUS zastávka",t:"04:43"},{s:"Solčany, ZŠ",t:"04:48"},{s:"Nitrianska Streda",t:"04:50"},{s:"Čeľadince",t:"04:51"},{s:"Kovárce, Jednota",t:"04:53"},{s:"Oponice, kostol",t:"04:58"},{s:"Ludanice, penzion ALTANA",t:"05:05"},{s:"Ludanice, ZŠ",t:"05:07"},{s:"Dvorany n.Nitrou, rázc.",t:"05:08"},{s:"Mýtna n/V, BUS zastávka",t:"05:09"},{s:"Kamanová, Obecný úrad",t:"05:11"},{s:"Kamanová,,rázc.k žel.st.",t:"05:12"},{s:"Preseľany, Jednota",t:"05:15"},{s:"Preseľany, ZŠ",t:"05:17"},{s:"Hrušovavy, Topoľčianska",t:"05:18"},{s:"Hrušovavy, kostol",t:"05:19"},{s:"Dolné Lefantovce, Obecný úrad",t:"05:23"},{s:"Koniarovce, rázc.k žel.stanici",t:"05:26"},{s:"Výčapy-Opatovce,IV",t:"05:28"},{s:"Výčapy-Opatovce,III",t:"05:29"},{s:"Výčapy-Opatovce,II",t:"05:30"},{s:"Výčapy-Opatovce,I",t:"05:31"},{s:"Jelšovce, pohostisntvo",t:"05:32"},{s:"Jelšovce, Obecný úrad",t:"05:33"},{s:"Čakajovce, Základná škola",t:"05:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-02:00":[{s:"Topoľčany,Krušovská ELEKTRO",t:"12:40"},{s:"Topoľčany,sídl.Východ - BUS zastávka",t:"12:43"},{s:"Solčany, ZŠ",t:"12:48"},{s:"Nitrianska Streda",t:"12:50"},{s:"Čeľadince",t:"12:51"},{s:"Kovárce, Jednota",t:"12:53"},{s:"Oponice, kostol",t:"12:58"},{s:"Ludanice, penzion ALTANA",t:"13:05"},{s:"Ludanice, ZŠ",t:"13:07"},{s:"Dvorany n.Nitrou, rázc.",t:"13:08"},{s:"Mýtna n/V, BUS zastávka",t:"13:09"},{s:"Kamanová, Obecný úrad",t:"13:11"},{s:"Kamanová,,rázc.k žel.st.",t:"13:12"},{s:"Preseľany, Jednota",t:"13:15"},{s:"Preseľany, ZŠ",t:"13:17"},{s:"Hrušovavy, Topoľčianska",t:"13:18"},{s:"Hrušovavy, kostol",t:"13:19"},{s:"Dolné Lefantovce, Obecný úrad",t:"13:23"},{s:"Koniarovce, rázc.k žel.stanici",t:"13:26"},{s:"Výčapy-Opatovce,IV",t:"13:28"},{s:"Výčapy-Opatovce,III",t:"13:29"},{s:"Výčapy-Opatovce,II",t:"13:30"},{s:"Výčapy-Opatovce,I",t:"13:31"},{s:"Jelšovce, pohostisntvo",t:"13:32"},{s:"Jelšovce, Obecný úrad",t:"13:33"},{s:"Čakajovce, Základná škola",t:"13:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-10:00":[{s:"Topoľčany,Krušovská ELEKTRO",t:"20:40"},{s:"Topoľčany,sídl.Východ - BUS zastávka",t:"20:43"},{s:"Solčany, ZŠ",t:"20:48"},{s:"Nitrianska Streda",t:"20:50"},{s:"Čeľadince",t:"20:51"},{s:"Kovárce, Jednota",t:"20:53"},{s:"Oponice, kostol",t:"20:58"},{s:"Ludanice, penzion ALTANA",t:"21:05"},{s:"Ludanice, ZŠ",t:"21:07"},{s:"Dvorany n.Nitrou, rázc.",t:"21:08"},{s:"Mýtna n/V, BUS zastávka",t:"21:09"},{s:"Kamanová, Obecný úrad",t:"21:11"},{s:"Kamanová,,rázc.k žel.st.",t:"21:12"},{s:"Preseľany, Jednota",t:"21:15"},{s:"Preseľany, ZŠ",t:"21:17"},{s:"Hrušovavy, Topoľčianska",t:"21:18"},{s:"Hrušovavy, kostol",t:"21:19"},{s:"Dolné Lefantovce, Obecný úrad",t:"21:23"},{s:"Koniarovce, rázc.k žel.stanici",t:"21:26"},{s:"Výčapy-Opatovce,IV",t:"21:28"},{s:"Výčapy-Opatovce,III",t:"21:29"},{s:"Výčapy-Opatovce,II",t:"21:30"},{s:"Výčapy-Opatovce,I",t:"21:31"},{s:"Jelšovce, pohostisntvo",t:"21:32"},{s:"Jelšovce, Obecný úrad",t:"21:33"},{s:"Čakajovce, Základná škola",t:"21:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "18:00-06:00":[{s:"Topoľčany,Krušovská ELEKTRO",t:"10:40"},{s:"Topoľčany,sídl.Východ - BUS zastávka",t:"10:43"},{s:"Solčany, ZŠ",t:"10:48"},{s:"Nitrianska Streda",t:"10:50"},{s:"Čeľadince",t:"10:51"},{s:"Kovárce, Jednota",t:"10:53"},{s:"Oponice, kostol",t:"10:58"},{s:"Ludanice, penzion ALTANA",t:"11:05"},{s:"Ludanice, ZŠ",t:"11:07"},{s:"Dvorany n.Nitrou, rázc.",t:"11:08"},{s:"Mýtna n/V, BUS zastávka",t:"11:09"},{s:"Kamanová, Obecný úrad",t:"11:11"},{s:"Kamanová,,rázc.k žel.st.",t:"11:12"},{s:"Preseľany, Jednota",t:"11:15"},{s:"Preseľany, ZŠ",t:"11:17"},{s:"Hrušovavy, Topoľčianska",t:"11:18"},{s:"Hrušovavy, kostol",t:"11:19"},{s:"Dolné Lefantovce, Obecný úrad",t:"11:23"},{s:"Koniarovce, rázc.k žel.stanici",t:"11:26"},{s:"Výčapy-Opatovce,IV",t:"11:28"},{s:"Výčapy-Opatovce,III",t:"11:29"},{s:"Výčapy-Opatovce,II",t:"11:30"},{s:"Výčapy-Opatovce,I",t:"11:31"},{s:"Jelšovce, pohostisntvo",t:"11:32"},{s:"Jelšovce, Obecný úrad",t:"11:33"},{s:"Čakajovce, Základná škola",t:"11:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"11:45"}]
+  }},
+  L5:{n:5, nm:"Lehota - V.Zálužie - Báb - Rišňovce - Lukáčovce - Alekšince - Andač - Zbehy", sh:{
+    "06:00-14:00":[{s:"Lehota, pošta",t:"04:45"},{s:"Veľké Zálužie, OcÚ",t:"04:50"},{s:"Veľké Zálužie,hor.koniec-Rešt.Bianka",t:"04:51"},{s:"Báb, OcÚ",t:"04:58"},{s:"Báb, ZŠ",t:"05:00"},{s:"Rumanová, Jednota",t:"05:03"},{s:"Rišňovce, BUS zast. Rázc.Rumanová",t:"05:08"},{s:"Rišňovce, Domovina",t:"05:10"},{s:"Alekšince, žel.stanica",t:"05:14"},{s:"Lukáčovce, OcÚ",t:"05:20"},{s:"Alekšince, Kostol",t:"05:24"},{s:"Andač, OcÚ",t:"05:30"},{s:"Zbehy, ZŠ",t:"05:33"},{s:"Zbehy, Ťapušík",t:"05:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-22:00":[{s:"Lehota, pošta",t:"12:45"},{s:"Veľké Zálužie, OcÚ",t:"12:50"},{s:"Veľké Zálužie,hor.koniec-Rešt.Bianka",t:"12:51"},{s:"Báb, OcÚ",t:"12:58"},{s:"Báb, ZŠ",t:"13:00"},{s:"Rumanová, Jednota",t:"13:03"},{s:"Rišňovce, BUS zast. Rázc.Rumanová",t:"13:08"},{s:"Rišňovce, Domovina",t:"13:10"},{s:"Alekšince, žel.stanica",t:"13:14"},{s:"Lukáčovce, OcÚ",t:"13:20"},{s:"Alekšince, Kostol",t:"13:24"},{s:"Andač, OcÚ",t:"13:30"},{s:"Zbehy, ZŠ",t:"13:33"},{s:"Zbehy, Ťapušík",t:"13:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-06:00":[{s:"Lehota, pošta",t:"20:45"},{s:"Veľké Zálužie, OcÚ",t:"20:50"},{s:"Veľké Zálužie,hor.koniec-Rešt.Bianka",t:"20:51"},{s:"Báb, OcÚ",t:"20:58"},{s:"Báb, ZŠ",t:"21:00"},{s:"Rumanová, Jednota",t:"21:03"},{s:"Rišňovce, BUS zast. Rázc.Rumanová",t:"21:08"},{s:"Rišňovce, Domovina",t:"21:10"},{s:"Alekšince, žel.stanica",t:"21:14"},{s:"Lukáčovce, OcÚ",t:"21:20"},{s:"Alekšince, Kostol",t:"21:24"},{s:"Andač, OcÚ",t:"21:30"},{s:"Zbehy, ZŠ",t:"21:33"},{s:"Zbehy, Ťapušík",t:"21:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "06:00-18:00":[{s:"Lehota, pošta",t:"04:45"},{s:"Veľké Zálužie, OcÚ",t:"04:50"},{s:"Veľké Zálužie,hor.koniec-Rešt.Bianka",t:"04:51"},{s:"Báb, OcÚ",t:"04:58"},{s:"Báb, ZŠ",t:"05:00"},{s:"Rumanová, Jednota",t:"05:03"},{s:"Rišňovce, BUS zast. Rázc.Rumanová",t:"05:08"},{s:"Rišňovce, Domovina",t:"05:10"},{s:"Alekšince, žel.stanica",t:"05:14"},{s:"Lukáčovce, OcÚ",t:"05:20"},{s:"Alekšince, Kostol",t:"05:24"},{s:"Andač, OcÚ",t:"05:30"},{s:"Zbehy, ZŠ",t:"05:33"},{s:"Zbehy, Ťapušík",t:"05:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-02:00":[{s:"Lehota, pošta",t:"12:45"},{s:"Veľké Zálužie, OcÚ",t:"12:50"},{s:"Veľké Zálužie,hor.koniec-Rešt.Bianka",t:"12:51"},{s:"Báb, OcÚ",t:"12:58"},{s:"Báb, ZŠ",t:"13:00"},{s:"Rumanová, Jednota",t:"13:03"},{s:"Rišňovce, BUS zast. Rázc.Rumanová",t:"13:08"},{s:"Rišňovce, Domovina",t:"13:10"},{s:"Alekšince, žel.stanica",t:"13:14"},{s:"Lukáčovce, OcÚ",t:"13:20"},{s:"Alekšince, Kostol",t:"13:24"},{s:"Andač, OcÚ",t:"13:30"},{s:"Zbehy, ZŠ",t:"13:33"},{s:"Zbehy, Ťapušík",t:"13:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-10:00":[{s:"Lehota, pošta",t:"20:45"},{s:"Veľké Zálužie, OcÚ",t:"20:50"},{s:"Veľké Zálužie,hor.koniec-Rešt.Bianka",t:"20:51"},{s:"Báb, OcÚ",t:"20:58"},{s:"Báb, ZŠ",t:"21:00"},{s:"Rumanová, Jednota",t:"21:03"},{s:"Rišňovce, BUS zast. Rázc.Rumanová",t:"21:08"},{s:"Rišňovce, Domovina",t:"21:10"},{s:"Alekšince, žel.stanica",t:"21:14"},{s:"Lukáčovce, OcÚ",t:"21:20"},{s:"Alekšince, Kostol",t:"21:24"},{s:"Andač, OcÚ",t:"21:30"},{s:"Zbehy, ZŠ",t:"21:33"},{s:"Zbehy, Ťapušík",t:"21:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "18:00-06:00":[{s:"Lehota, pošta",t:"10:45"},{s:"Veľké Zálužie, OcÚ",t:"10:50"},{s:"Veľké Zálužie,hor.koniec-Rešt.Bianka",t:"10:51"},{s:"Báb, OcÚ",t:"10:58"},{s:"Báb, ZŠ",t:"11:00"},{s:"Rumanová, Jednota",t:"11:03"},{s:"Rišňovce, BUS zast. Rázc.Rumanová",t:"11:08"},{s:"Rišňovce, Domovina",t:"11:10"},{s:"Alekšince, žel.stanica",t:"11:14"},{s:"Lukáčovce, OcÚ",t:"11:20"},{s:"Alekšince, Kostol",t:"11:24"},{s:"Andač, OcÚ",t:"11:30"},{s:"Zbehy, ZŠ",t:"11:33"},{s:"Zbehy, Ťapušík",t:"11:35"},{s:"Čab, BOURBON AP / BIA Plastic",t:"11:45"}]
+  }},
+  L6:{n:6, nm:"Nové Zámky - Šurany - Tvrdošovce - Rastislavice - Komjatice - Branč - Drážovce", sh:{
+    "06:00-14:00":[{s:"Dvory nad Žitavou, obecný úrad",t:"04:05"},{s:"Nové Zámky, SNP č.5 potraviny TERNO",t:"04:15"},{s:"Nové Zámky, SNP č.5 potraviny TERNO",t:"04:15"},{s:"Nové Zámky, Výpalisko č.14",t:"04:16"},{s:"Šurany,AS",t:"04:28"},{s:"Tvrdošovce,VUB",t:"04:38"},{s:"Jatov, rázc.",t:"04:42"},{s:"Rastislavice, Jednota",t:"04:45"},{s:"Rastislavice, bytovky",t:"04:47"},{s:"Komjatice, TESCO",t:"04:52"},{s:"Komjatice, HOTEL Včielka",t:"04:54"},{s:"Komjatice, Nitrianska",t:"04:55"},{s:"Veľký Kýr, Motorest",t:"04:58"},{s:"Veľký Kýr, Rázc.k Žel.stanici",t:"05:00"},{s:"Branč, Obecný úrad",t:"05:03"},{s:"Ivanka pri Nitre, Vinohradská LUK",t:"05:06"},{s:"Ivanka pri Nitre, rázc. žel.stanica",t:"05:08"},{s:"Ivanka pri Nitre, Texiplast",t:"05:09"},{s:"Dolné Krškany, Základná škola",t:"05:11"},{s:"Horné Krškany, NitraFROST",t:"05:12"},{s:"Horné Krškany, Čertica",t:"05:14"},{s:"Horné Krškany, Priemyselná",t:"05:15"},{s:"Nitra, Chrenovský cintorín",t:"05:22"},{s:"Nitra, Rázcestie pod Zoborom",t:"05:24"},{s:"Drážovce, Jednota",t:"05:28"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-22:00":[{s:"Nové Zámky, SNP č.5 potraviny TERNO",t:"12:15"},{s:"Nové Zámky, Výpalisko č.14",t:"12:16"},{s:"Šurany,AS",t:"12:28"},{s:"Tvrdošovce,VUB",t:"12:38"},{s:"Jatov, rázc.",t:"12:42"},{s:"Rastislavice, Jednota",t:"12:45"},{s:"Rastislavice, bytovky",t:"12:47"},{s:"Komjatice, TESCO",t:"12:52"},{s:"Komjatice, HOTEL Včielka",t:"12:54"},{s:"Komjatice, Nitrianska",t:"12:55"},{s:"Veľký Kýr, Motorest",t:"12:58"},{s:"Veľký Kýr, Rázc.k Žel.stanici",t:"13:00"},{s:"Branč, Obecný úrad",t:"13:03"},{s:"Ivanka pri Nitre, Vinohradská LUK",t:"13:06"},{s:"Ivanka pri Nitre, rázc. žel.stanica",t:"13:08"},{s:"Ivanka pri Nitre, Texiplast",t:"13:09"},{s:"Dolné Krškany, Základná škola",t:"13:11"},{s:"Horné Krškany, NitraFROST",t:"13:12"},{s:"Horné Krškany, Čertica",t:"13:14"},{s:"Horné Krškany, Priemyselná",t:"13:15"},{s:"Nitra, Chrenovský cintorín",t:"13:22"},{s:"Nitra, Rázcestie pod Zoborom",t:"13:24"},{s:"Drážovce, Jednota",t:"13:28"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-06:00":[{s:"Nové Zámky, SNP č.5 potraviny TERNO",t:"20:15"},{s:"Nové Zámky, Výpalisko č.14",t:"20:16"},{s:"Šurany,AS",t:"20:28"},{s:"Tvrdošovce,VUB",t:"20:38"},{s:"Jatov, rázc.",t:"20:42"},{s:"Rastislavice, Jednota",t:"20:45"},{s:"Rastislavice, bytovky",t:"20:47"},{s:"Komjatice, TESCO",t:"20:52"},{s:"Komjatice, HOTEL Včielka",t:"20:54"},{s:"Komjatice, Nitrianska",t:"20:55"},{s:"Veľký Kýr, Motorest",t:"20:58"},{s:"Veľký Kýr, Rázc.k Žel.stanici",t:"21:00"},{s:"Branč, Obecný úrad",t:"21:03"},{s:"Ivanka pri Nitre, Vinohradská LUK",t:"21:06"},{s:"Ivanka pri Nitre, rázc. žel.stanica",t:"21:08"},{s:"Ivanka pri Nitre, Texiplast",t:"21:09"},{s:"Dolné Krškany, Základná škola",t:"21:11"},{s:"Horné Krškany, NitraFROST",t:"21:12"},{s:"Horné Krškany, Čertica",t:"21:14"},{s:"Horné Krškany, Priemyselná",t:"21:15"},{s:"Nitra, Chrenovský cintorín",t:"21:22"},{s:"Nitra, Rázcestie pod Zoborom",t:"21:24"},{s:"Drážovce, Jednota",t:"21:28"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "06:00-18:00":[{s:"Dvory nad Žitavou, obecný úrad",t:"04:05"},{s:"Nové Zámky, SNP č.5 potraviny TERNO",t:"04:15"},{s:"Nové Zámky, SNP č.5 potraviny TERNO",t:"04:15"},{s:"Nové Zámky, Výpalisko č.14",t:"04:16"},{s:"Šurany,AS",t:"04:28"},{s:"Tvrdošovce,VUB",t:"04:38"},{s:"Jatov, rázc.",t:"04:42"},{s:"Rastislavice, Jednota",t:"04:45"},{s:"Rastislavice, bytovky",t:"04:47"},{s:"Komjatice, TESCO",t:"04:52"},{s:"Komjatice, HOTEL Včielka",t:"04:54"},{s:"Komjatice, Nitrianska",t:"04:55"},{s:"Veľký Kýr, Motorest",t:"04:58"},{s:"Veľký Kýr, Rázc.k Žel.stanici",t:"05:00"},{s:"Branč, Obecný úrad",t:"05:03"},{s:"Ivanka pri Nitre, Vinohradská LUK",t:"05:06"},{s:"Ivanka pri Nitre, rázc. žel.stanica",t:"05:08"},{s:"Ivanka pri Nitre, Texiplast",t:"05:09"},{s:"Dolné Krškany, Základná škola",t:"05:11"},{s:"Horné Krškany, NitraFROST",t:"05:12"},{s:"Horné Krškany, Čertica",t:"05:14"},{s:"Horné Krškany, Priemyselná",t:"05:15"},{s:"Nitra, Chrenovský cintorín",t:"05:22"},{s:"Nitra, Rázcestie pod Zoborom",t:"05:24"},{s:"Drážovce, Jednota",t:"05:28"},{s:"Čab, BOURBON AP / BIA Plastic",t:"05:45"}],
+    "14:00-02:00":[{s:"Nové Zámky, SNP č.5 potraviny TERNO",t:"12:15"},{s:"Nové Zámky, Výpalisko č.14",t:"12:16"},{s:"Šurany,AS",t:"12:28"},{s:"Tvrdošovce,VUB",t:"12:38"},{s:"Jatov, rázc.",t:"12:42"},{s:"Rastislavice, Jednota",t:"12:45"},{s:"Rastislavice, bytovky",t:"12:47"},{s:"Komjatice, TESCO",t:"12:52"},{s:"Komjatice, HOTEL Včielka",t:"12:54"},{s:"Komjatice, Nitrianska",t:"12:55"},{s:"Veľký Kýr, Motorest",t:"12:58"},{s:"Veľký Kýr, Rázc.k Žel.stanici",t:"13:00"},{s:"Branč, Obecný úrad",t:"13:03"},{s:"Ivanka pri Nitre, Vinohradská LUK",t:"13:06"},{s:"Ivanka pri Nitre, rázc. žel.stanica",t:"13:08"},{s:"Ivanka pri Nitre, Texiplast",t:"13:09"},{s:"Dolné Krškany, Základná škola",t:"13:11"},{s:"Horné Krškany, NitraFROST",t:"13:12"},{s:"Horné Krškany, Čertica",t:"13:14"},{s:"Horné Krškany, Priemyselná",t:"13:15"},{s:"Nitra, Chrenovský cintorín",t:"13:22"},{s:"Nitra, Rázcestie pod Zoborom",t:"13:24"},{s:"Drážovce, Jednota",t:"13:28"},{s:"Čab, BOURBON AP / BIA Plastic",t:"13:45"}],
+    "22:00-10:00":[{s:"Nové Zámky, SNP č.5 potraviny TERNO",t:"20:15"},{s:"Nové Zámky, Výpalisko č.14",t:"20:16"},{s:"Šurany,AS",t:"20:28"},{s:"Tvrdošovce,VUB",t:"20:38"},{s:"Jatov, rázc.",t:"20:42"},{s:"Rastislavice, Jednota",t:"20:45"},{s:"Rastislavice, bytovky",t:"20:47"},{s:"Komjatice, TESCO",t:"20:52"},{s:"Komjatice, HOTEL Včielka",t:"20:54"},{s:"Komjatice, Nitrianska",t:"20:55"},{s:"Veľký Kýr, Motorest",t:"20:58"},{s:"Veľký Kýr, Rázc.k Žel.stanici",t:"21:00"},{s:"Branč, Obecný úrad",t:"21:03"},{s:"Ivanka pri Nitre, Vinohradská LUK",t:"21:06"},{s:"Ivanka pri Nitre, rázc. žel.stanica",t:"21:08"},{s:"Ivanka pri Nitre, Texiplast",t:"21:09"},{s:"Dolné Krškany, Základná škola",t:"21:11"},{s:"Horné Krškany, NitraFROST",t:"21:12"},{s:"Horné Krškany, Čertica",t:"21:14"},{s:"Horné Krškany, Priemyselná",t:"21:15"},{s:"Nitra, Chrenovský cintorín",t:"21:22"},{s:"Nitra, Rázcestie pod Zoborom",t:"21:24"},{s:"Drážovce, Jednota",t:"21:28"},{s:"Čab, BOURBON AP / BIA Plastic",t:"21:45"}],
+    "18:00-06:00":[{s:"Nové Zámky, SNP č.5 potraviny TERNO",t:"10:15"},{s:"Nové Zámky, Výpalisko č.14",t:"10:16"},{s:"Šurany,AS",t:"10:28"},{s:"Tvrdošovce,VUB",t:"10:38"},{s:"Jatov, rázc.",t:"10:42"},{s:"Rastislavice, Jednota",t:"10:45"},{s:"Rastislavice, bytovky",t:"10:47"},{s:"Komjatice, TESCO",t:"10:52"},{s:"Komjatice, HOTEL Včielka",t:"10:54"},{s:"Komjatice, Nitrianska",t:"10:55"},{s:"Veľký Kýr, Motorest",t:"10:58"},{s:"Veľký Kýr, Rázc.k Žel.stanici",t:"11:00"},{s:"Branč, Obecný úrad",t:"11:03"},{s:"Ivanka pri Nitre, Vinohradská LUK",t:"11:06"},{s:"Ivanka pri Nitre, rázc. žel.stanica",t:"11:08"},{s:"Ivanka pri Nitre, Texiplast",t:"11:09"},{s:"Dolné Krškany, Základná škola",t:"11:11"},{s:"Horné Krškany, NitraFROST",t:"11:12"},{s:"Horné Krškany, Čertica",t:"11:14"},{s:"Horné Krškany, Priemyselná",t:"11:15"},{s:"Nitra, Chrenovský cintorín",t:"11:22"},{s:"Nitra, Rázcestie pod Zoborom",t:"11:24"},{s:"Drážovce, Jednota",t:"11:28"},{s:"Čab, BOURBON AP / BIA Plastic",t:"11:45"}]
+  }},
+  L7:{n:7, nm:"Mojzesovo - Černík - Veľký Cetín - Čechynce - Nitra", sh:{
+    "06:00-14:00":[{s:"Mojzesovo,kostol",t:"04:45"},{s:"Mojzesovo,Obecný úrad",t:"04:46"},{s:"Černík,Obecný úrad",t:"04:48"},{s:"Černík,Na vŕšku",t:"04:49"},{s:"Vinodol,dolný koniec",t:"04:51"},{s:"Vinodol,horný koniec",t:"04:53"},{s:"Veľký Cetín, rázc.",t:"04:56"},{s:"Veľký Cetín, ZŠ",t:"04:57"},{s:"Paňa,razc.",t:"05:00"},{s:"Malý Cetín, dolný koniec",t:"05:02"},{s:"Malý Cetín, RD",t:"05:03"},{s:"Čechynce,hlavná cesta",t:"05:05"},{s:"Janíkovce, Slamkova - hl.cesta",t:"05:08"},{s:"Nitra, Chrenovský cintorín > Prestup - linka č.6",t:"05:15"}],
+    "14:00-22:00":[{s:"Mojzesovo,kostol",t:"12:45"},{s:"Mojzesovo,Obecný úrad",t:"12:46"},{s:"Černík,Obecný úrad",t:"12:48"},{s:"Černík,Na vŕšku",t:"12:49"},{s:"Vinodol,dolný koniec",t:"12:51"},{s:"Vinodol,horný koniec",t:"12:53"},{s:"Veľký Cetín, rázc.",t:"12:56"},{s:"Veľký Cetín, ZŠ",t:"12:57"},{s:"Paňa,razc.",t:"13:00"},{s:"Malý Cetín, dolný koniec",t:"13:02"},{s:"Malý Cetín, RD",t:"13:03"},{s:"Čechynce,hlavná cesta",t:"13:05"},{s:"Janíkovce, Slamkova - hl.cesta",t:"13:08"},{s:"Nitra, Chrenovský cintorín > Prestup - linka č.6",t:"13:15"}],
+    "22:00-06:00":[{s:"Mojzesovo,kostol",t:"20:45"},{s:"Mojzesovo,Obecný úrad",t:"20:46"},{s:"Černík,Obecný úrad",t:"20:48"},{s:"Černík,Na vŕšku",t:"20:49"},{s:"Vinodol,dolný koniec",t:"20:51"},{s:"Vinodol,horný koniec",t:"20:53"},{s:"Veľký Cetín, rázc.",t:"20:56"},{s:"Veľký Cetín, ZŠ",t:"20:57"},{s:"Paňa,razc.",t:"21:00"},{s:"Malý Cetín, dolný koniec",t:"21:02"},{s:"Malý Cetín, RD",t:"21:03"},{s:"Čechynce,hlavná cesta",t:"21:05"},{s:"Janíkovce, Slamkova - hl.cesta",t:"21:08"},{s:"Nitra, Chrenovský cintorín > Prestup - linka č.6",t:"21:15"}],
+    "06:00-18:00":[{s:"Mojzesovo,kostol",t:"04:45"},{s:"Mojzesovo,Obecný úrad",t:"04:46"},{s:"Černík,Obecný úrad",t:"04:48"},{s:"Černík,Na vŕšku",t:"04:49"},{s:"Vinodol,dolný koniec",t:"04:51"},{s:"Vinodol,horný koniec",t:"04:53"},{s:"Veľký Cetín, rázc.",t:"04:56"},{s:"Veľký Cetín, ZŠ",t:"04:57"},{s:"Paňa,razc.",t:"05:00"},{s:"Malý Cetín, dolný koniec",t:"05:02"},{s:"Malý Cetín, RD",t:"05:03"},{s:"Čechynce,hlavná cesta",t:"05:05"},{s:"Janíkovce, Slamkova - hl.cesta",t:"05:08"},{s:"Nitra, Chrenovský cintorín > Prestup - linka č.6",t:"05:15"}],
+    "14:00-02:00":[{s:"Mojzesovo,kostol",t:"12:45"},{s:"Mojzesovo,Obecný úrad",t:"12:46"},{s:"Černík,Obecný úrad",t:"12:48"},{s:"Černík,Na vŕšku",t:"12:49"},{s:"Vinodol,dolný koniec",t:"12:51"},{s:"Vinodol,horný koniec",t:"12:53"},{s:"Veľký Cetín, rázc.",t:"12:56"},{s:"Veľký Cetín, ZŠ",t:"12:57"},{s:"Paňa,razc.",t:"13:00"},{s:"Malý Cetín, dolný koniec",t:"13:02"},{s:"Malý Cetín, RD",t:"13:03"},{s:"Čechynce,hlavná cesta",t:"13:05"},{s:"Janíkovce, Slamkova - hl.cesta",t:"13:08"},{s:"Nitra, Chrenovský cintorín > Prestup - linka č.6",t:"13:15"}],
+    "22:00-10:00":[{s:"Mojzesovo,kostol",t:"20:45"},{s:"Mojzesovo,Obecný úrad",t:"20:46"},{s:"Černík,Obecný úrad",t:"20:48"},{s:"Černík,Na vŕšku",t:"20:49"},{s:"Vinodol,dolný koniec",t:"20:51"},{s:"Vinodol,horný koniec",t:"20:53"},{s:"Veľký Cetín, rázc.",t:"20:56"},{s:"Veľký Cetín, ZŠ",t:"20:57"},{s:"Paňa,razc.",t:"21:00"},{s:"Malý Cetín, dolný koniec",t:"21:02"},{s:"Malý Cetín, RD",t:"21:03"},{s:"Čechynce,hlavná cesta",t:"21:05"},{s:"Janíkovce, Slamkova - hl.cesta",t:"21:08"},{s:"Nitra, Chrenovský cintorín > Prestup - linka č.6",t:"21:15"}],
+    "18:00-06:00":[{s:"Mojzesovo,kostol",t:"10:45"},{s:"Mojzesovo,Obecný úrad",t:"10:46"},{s:"Černík,Obecný úrad",t:"10:48"},{s:"Černík,Na vŕšku",t:"10:49"},{s:"Vinodol,dolný koniec",t:"10:51"},{s:"Vinodol,horný koniec",t:"10:53"},{s:"Veľký Cetín, rázc.",t:"10:56"},{s:"Veľký Cetín, ZŠ",t:"10:57"},{s:"Paňa,razc.",t:"11:00"},{s:"Malý Cetín, dolný koniec",t:"11:02"},{s:"Malý Cetín, RD",t:"11:03"},{s:"Čechynce,hlavná cesta",t:"11:05"},{s:"Janíkovce, Slamkova - hl.cesta",t:"11:08"},{s:"Nitra, Chrenovský cintorín > Prestup - linka č.6",t:"11:15"}]
+  }},
+  L8:{n:8, nm:"Nitra - Čakajovce - Čab (administratíva)", sh:{
+    "06:00-18:00":[{s:"Nitra, Klokočina - Kmeťova ul.",t:"06:40"},{s:"Nitra, Klokočina - Mikovíniho",t:"06:45"},{s:"Nitra, ZŠ Škultétyho",t:"06:47"},{s:"Nitra, Mlyny",t:"06:50"},{s:"Nitra, Tr.A.Hlinku – CENTRO",t:"06:53"},{s:"Nitra, Tr.A.Hlinku – Atlet.štadion",t:"06:54"},{s:"Nitra, Chrenovský cintorín",t:"06:55"},{s:"Nitra, Rázcestie pod Zoborom",t:"06:57"},{s:"Čakajovce, Základná škola",t:"07:04"},{s:"Čab,domovina",t:"07:10"},{s:"Čab, BOURBON AP / BIA Plastic",t:"07:15"}]
+  }},
+  L9:{n:9, nm:"Topoľčany - Solčany - H.Obdokovce - V.Ripňany - Čab (administratíva)", sh:{
+    "06:00-18:00":[{s:"Topoľčany Kružovská ARTEP",t:"06:26"},{s:"Topoľčany sídl. Východ",t:"06:30"},{s:"Solčany, Lisné",t:"06:37"},{s:"Čeľadince, Kultúrny dom",t:"06:40"},{s:"Horné Obdokovce, obecný úrad",t:"06:50"},{s:"Veľké Ripňany, razc.žel.stanica",t:"07:00"},{s:"Biskupová",t:"07:05"},{s:"Čab, domovina",t:"07:12"}]
+  }}
+};
+var DN = ["Ne","Po","Ut","St","Št","Pi","So"];
+var idVal="", curUser=null, bkgs=[];
+var selShift="", selShiftLb="", selLK="", selStop=null;
+var selDays=new Set(), rangeOn=false, rFrom="", rTo="";
+var showAll=false, obStop=null, editId=null;
+var TODAY = new Date(); TODAY.setHours(0,0,0,0);
+function ds(d){ var y=d.getFullYear(),m=d.getMonth()+1,day=d.getDate(); return y+"-"+(m<10?"0"+m:m)+"-"+(day<10?"0"+day:day); }
+var SK_DNF = ["nedeľa","pondelok","utorok","streda","štvrtok","piatok","sobota"];
+var SK_MON = ["januára","februára","marca","apríla","mája","júna","júla","augusta","septembra","októbra","novembra","decembra"];
+function fFull(d){ return SK_DNF[d.getDay()]+", "+d.getDate()+". "+SK_MON[d.getMonth()]+" "+d.getFullYear(); }
+function fShort(d){ return d.getDate()+"."+(d.getMonth()+1)+"."; }
+function showCard(id){
+  ["sc-login","sc-ob","sc-main","sc-confirm","sc-done"].forEach(function(c){
+    var el=document.getElementById(c);
+    if(el) el.classList.toggle("active", c===id);
+  });
+}
+// ── NUMPAD ──
+document.querySelectorAll(".key").forEach(function(k){
+  k.addEventListener("click", function(){
+    var v=this.dataset.k;
+    if(v==="del") idVal=idVal.slice(0,-1);
+    else if(idVal.length<6) idVal+=v;
+    var dv=document.getElementById("id-v"), ph=document.getElementById("id-ph");
+    if(idVal){
+      dv.style.display="flex";
+      dv.textContent=idVal.replace(/./g,function(c,i){ return i<idVal.length-1?"·":c; });
+      ph.style.display="none";
+    } else {
+      dv.style.display="none"; ph.style.display="flex";
+    }
+    document.getElementById("login-btn").disabled = idVal.length<3;
+    document.getElementById("login-err").style.display="none";
+  });
+});
+function _doLoginBase(){
+  var emp=DB[idVal];
+  if(!emp){ document.getElementById("login-err").style.display="block"; return; }
+  curUser={id:idVal, name:emp.name, ini:emp.ini, home:emp.home, firma:emp.firma||"BIA"};
+  if(!curUser.home){
+    document.getElementById("ob-av").textContent=emp.ini;
+    document.getElementById("ob-nm").textContent=emp.name;
+    document.getElementById("ob-id").textContent="ID: "+idVal;
+    buildObLines();
+    showCard("sc-ob");
+  } else {
+    enterMain();
+  }
+}
+function doLogout(){
+  idVal=""; curUser=null;
+  document.getElementById("id-v").style.display="none";
+  document.getElementById("id-ph").style.display="flex";
+  document.getElementById("login-btn").disabled=true;
+  document.getElementById("login-err").style.display="none";
+  showCard("sc-login");
+}
+// ── ONBOARDING ──
+function buildObLines(){
+  var sel=document.getElementById("ob-line");
+  sel.innerHTML="<option value=''>-- Vyberte linku --</option>";
+  Object.keys(LINES).forEach(function(lk){
+    var l=LINES[lk];
+    var opt=document.createElement("option");
+    opt.value=lk; opt.textContent="Linka "+l.n+" - "+l.nm;
+    sel.appendChild(opt);
+  });
+  document.getElementById("ob-stops").innerHTML="";
+  document.getElementById("ob-stop-lbl").style.display="none";
+  document.getElementById("ob-btn").disabled=true;
+  obStop=null;
+}
+function obLineCh(){
+  var lk=document.getElementById("ob-line").value;
+  var stopsEl=document.getElementById("ob-stops");
+  var lbl=document.getElementById("ob-stop-lbl");
+  obStop=null;
+  document.getElementById("ob-btn").disabled=true;
+  if(!lk){ stopsEl.innerHTML=""; lbl.style.display="none"; return; }
+  lbl.style.display="block";
+  var line=LINES[lk];
+  var firstSh=Object.keys(line.sh)[0];
+  var stops=line.sh[firstSh]||[];
+  var html="";
+  stops.forEach(function(s){
+    html+="<div class=stop-item data-lk="+JSON.stringify(lk)+" data-sname="+JSON.stringify(s.s)+" data-time="+JSON.stringify(s.t)+" onclick=OB_PICK(this)>";
+    html+="<div class=sdot></div>";
+    html+="<div class=sname>"+s.s+"</div>";
+    html+="<div class=stime>"+s.t+"</div></div>";
+  });
+  stopsEl.innerHTML=html;
+}
+function OB_PICK(el){
+  document.querySelectorAll("#ob-stops .stop-item").forEach(function(x){
+    x.classList.remove("sel");
+    var d=x.querySelector(".sdot");
+    if(d){ d.style.background=""; d.style.borderColor=""; }
+  });
+  el.classList.add("sel");
+  var dot=el.querySelector(".sdot");
+  if(dot){ dot.style.background="#1a3f72"; dot.style.borderColor="#1a3f72"; }
+  obStop={lk:el.dataset.lk, sname:el.dataset.sname, time:el.dataset.time};
+  document.getElementById("ob-btn").disabled=false;
+}
+function saveHome(){
+  if(!obStop) return;
+  DB[curUser.id].home=obStop;
+  curUser.home=obStop;
+  enterMain();
+}
+// ── MAIN ──
+function enterMain(){
+  document.getElementById("m-av").textContent=curUser.ini;
+  document.getElementById("m-nm").textContent=curUser.name;
+  document.getElementById("m-id").textContent="ID: "+curUser.id;
+  document.getElementById("main-sub").textContent=curUser.name;
+  showCard("sc-main");
+  switchTab(0);
+  resetForm();
+}
+function switchTab(idx){
+  document.getElementById("tab-new").classList.toggle("active",idx===0);
+  document.getElementById("tab-my").classList.toggle("active",idx===1);
+  document.getElementById("pane-new").style.display=idx===0?"block":"none";
+  document.getElementById("pane-my").style.display=idx===1?"block":"none";
+  if(idx===1) renderBkgs();
+}
+// ── DATE ──
+// dayShiftOverride: dstr -> shift key (napr. "14:00-22:00") alebo null = použiť hlavnú zmenu
+var dayShiftOverride = {};
+
+function buildWstrip(){
+  var el=document.getElementById("wstrip");
+  el.innerHTML="";
+  var todayStr=ds(TODAY);
+  for(var i=0;i<30;i++){
+    var d=new Date(TODAY); d.setDate(TODAY.getDate()+i);
+    var dstr=ds(d);
+    var isToday=(dstr===todayStr);
+    var cls="dc"+(selDays.has(dstr)?" sel":"");
+    var div=document.createElement("div");
+    div.className=cls;
+    div.dataset.ds=dstr;
+    // Zobraz override badge ak existuje
+    var ovr = dayShiftOverride[dstr];
+    var ovrBadge = ovr ? "<span class='day-ovr' title='Iná zmena: "+ovr+"'>"+ovr.split(':')[0]+"–"+ovr.split('-')[1].split(':')[0]+"</span>" : "";
+    div.innerHTML="<span class='dn'>"+DN[d.getDay()]+"</span><span class='dd'>"+d.getDate()+"."+(d.getMonth()+1)+"."+ovrBadge+"</span>";
+    div.addEventListener("click",function(e){
+      if(e.target.classList.contains('day-ovr')) return; // nechaj na long-press
+      togDay(this.dataset.ds,this);
+    });
+    div.addEventListener("contextmenu",function(e){
+      e.preventDefault();
+      openDayShiftPicker(this.dataset.ds);
+    });
+    // Long-press pre mobil
+    var _ds = dstr;
+    var lpTimer;
+    div.addEventListener("touchstart",function(e){ lpTimer=setTimeout(function(){ openDayShiftPicker(_ds); },600); });
+    div.addEventListener("touchend",function(){ clearTimeout(lpTimer); });
+    div.addEventListener("touchmove",function(){ clearTimeout(lpTimer); });
+    el.appendChild(div);
+  }
+  updSum();
+}
+function togDay(dstr,cell){
+  if(rangeOn) return;
+  if(selDays.has(dstr)){ selDays.delete(dstr); cell.classList.remove("sel"); }
+  else{ selDays.add(dstr); cell.classList.add("sel"); }
+  updSum(); chkSub();
+}
+function togRange(){
+  rangeOn=!rangeOn;
+  var tb=document.getElementById("tog-box"); if(tb) tb.classList.toggle("on",rangeOn);
+  var rs=document.getElementById("range-sec"); if(rs) rs.style.display=rangeOn?"block":"none";
+  var opacity=rangeOn?"0.4":"1", pe=rangeOn?"none":"auto";
+  var tdb=document.getElementById("td-btn"); if(tdb){ tdb.style.opacity=opacity; tdb.style.pointerEvents=pe; }
+  document.querySelectorAll(".dc").forEach(function(c){ c.style.opacity=opacity; c.style.pointerEvents=pe; });
+  if(!rangeOn){ rFrom=""; rTo=""; var rf=document.getElementById("r-from"); if(rf) rf.value=""; var rt=document.getElementById("r-to"); if(rt) rt.value=""; }
+  updSum(); chkSub();
+}
+function onRC(){
+  var rf=document.getElementById("r-from"), rt=document.getElementById("r-to");
+  rFrom=rf?rf.value:""; rTo=rt?rt.value:"";
+  updSum(); chkSub();
+}
+function updSum(){
+  var el=document.getElementById("sel-sum"); if(!el) return;
+  if(rangeOn){
+    if(rFrom&&rTo){
+      var f=new Date(rFrom+"T12:00"), t=new Date(rTo+"T12:00");
+      if(t>=f){ var d=Math.round((t-f)/86400000)+1; el.textContent=fShort(f)+" - "+fShort(t)+" ("+d+(d===1?" deň":d<5?" dni":" dní")+")"; }
+      else el.textContent="Dátum do musí byť neskorší.";
+    } else el.textContent="";
+    return;
+  }
+  if(selDays.size===0){ el.textContent=""; return; }
+  var arr=Array.from(selDays).sort();
+  el.textContent=arr.length===1 ? fFull(new Date(arr[0]+"T12:00")) : arr.length+" dní: "+arr.map(function(s){ return fShort(new Date(s+"T12:00")); }).join(", ");
+}
+function getDateLb(){
+  if(rangeOn&&rFrom&&rTo) return fShort(new Date(rFrom+"T12:00"))+" - "+fShort(new Date(rTo+"T12:00"));
+  var arr=Array.from(selDays).sort();
+  if(arr.length===1) return fFull(new Date(arr[0]+"T12:00"));
+  if(arr.length>1) return arr.map(function(s){ return fShort(new Date(s+"T12:00")); }).join(", ");
+  return "-";
+}
+function hasDate(){
+  if(rangeOn) return !!(rFrom&&rTo&&new Date(rTo+"T12:00")>=new Date(rFrom+"T12:00"));
+  return selDays.size>0;
+}
+// ── SHIFTS ──
+function buildShifts(){
+  var el=document.getElementById("shift-grid"); if(!el) return;
+  el.innerHTML=SHIFTS.map(function(s,i){
+    return "<div class='sc' id='sc"+i+"' onclick='selShiftFn("+i+")'><div class='st'>"+s.lb+"</div><div class='sn'>"+s.nm+"</div></div>";
+  }).join("");
+}
+function selShiftFn(idx){
+  document.querySelectorAll(".sc").forEach(function(c){ c.classList.remove("sel"); });
+  var el=document.getElementById("sc"+idx); if(el) el.classList.add("sel");
+  selShift=SHIFTS[idx].k; selShiftLb=SHIFTS[idx].nm;
+  var oi=document.getElementById("other-inp"); if(oi) oi.value="";
+  var ow=document.getElementById("other-row"); if(ow){ ow.style.borderColor=""; ow.style.background=""; }
+  selStop=null; showAll=false;
+  // Automaticky predvyber domovskú linku ak má spoje pre túto zmenu (vrátane záložných zmien)
+  if(curUser && curUser.home && getLineStops(curUser.home.lk, selShift)){
+    selLK=curUser.home.lk;
+  } else {
+    selLK="";
+  }
+  buildLines(); renderStops(); chkSub();
+}
+function onOther(inp){
+  document.querySelectorAll(".sc").forEach(function(c){ c.classList.remove("sel"); });
+  var ow=document.getElementById("other-row");
+  if(inp.value.trim()){ selShift=inp.value.trim(); selShiftLb="Iná"; if(ow){ow.style.borderColor="#1a3f72";ow.style.background="#eef3fb";} }
+  else{ selShift=""; if(ow){ow.style.borderColor="";ow.style.background="";} }
+  selLK=""; selStop=null; showAll=false;
+  buildLines(); renderStops(); chkSub();
+}
+// ── SHIFT FALLBACK ──
+var SHIFT_FB={"06:00-18:00":"06:00-14:00","14:00-02:00":"14:00-22:00","22:00-10:00":"22:00-06:00","08:00-16:00":"06:00-18:00"};
+function getLineStops(lk,shift){
+  var line=LINES[lk]; if(!line) return null;
+  if(line.sh[shift]) return line.sh[shift];
+  var fb=SHIFT_FB[shift];
+  if(fb){
+    if(line.sh[fb]) return line.sh[fb];
+    var fb2=SHIFT_FB[fb];
+    if(fb2 && line.sh[fb2]) return line.sh[fb2];
+  }
+  return null;
+}
+// ── LINES ──
+function buildLines(){
+  var sel=document.getElementById("f-line"); if(!sel) return;
+  sel.innerHTML="<option value=''>-- Vyberte linku --</option>";
+  if(!selShift){ sel.options[0].textContent="-- Najprv vyberte zmenu --"; return; }
+  var found=false;
+  Object.keys(LINES).forEach(function(lk){
+    if(getLineStops(lk,selShift)){
+      var opt=document.createElement("option");
+      opt.value=lk; opt.textContent="Linka "+LINES[lk].n+" - "+LINES[lk].nm;
+      if(lk===selLK) opt.selected=true;
+      sel.appendChild(opt); found=true;
+    }
+  });
+  if(!found) sel.options[0].textContent="-- Žiadne linky pre túto zmenu --";
+  var lbl=document.getElementById("f-stop-lbl"); if(lbl) lbl.style.display=selLK?"block":"none";
+  var fs=document.getElementById("f-stops"); if(fs&&!selLK) fs.innerHTML="";
+  // Aktualizuj hodnotu select elementu ak je linka auto-predvolená
+  if(selLK && sel.value!==selLK) sel.value=selLK;
+}
+function onLineCh(){
+  var sel=document.getElementById("f-line"); if(!sel) return;
+  selLK=sel.value; selStop=null; showAll=false;
+  var lbl=document.getElementById("f-stop-lbl"); if(lbl) lbl.style.display=selLK?"block":"none";
+  renderStops(); chkSub();
+}
+// ── STOPS ──
+function renderStops(){
+  var el=document.getElementById("f-stops");
+  if(!el) return;
+  if(!selLK){ el.innerHTML=""; return; }
+  var line=LINES[selLK];
+  var stops=getLineStops(selLK,selShift);
+  if(!stops){ el.innerHTML="<div class=no-item>Táto linka nemá spoje pre túto zmenu.</div>"; return; }
+  var home=curUser ? curUser.home : null;
+  var homeStop=home && home.lk===selLK ? home : null;
+  var html="";
+  if(!showAll && homeStop){
+    var hs=stops.find(function(s){ return s.s===homeStop.sname; });
+    if(hs){
+      var isSel=selStop && selStop.s===hs.s;
+      var sc=isSel ? "stop-item home sel" : "stop-item home";
+      var dc=isSel ? "background:#1a3f72;border-color:#1a3f72" : "background:#2d7dd2;border-color:#2d7dd2";
+      html+="<div class="+JSON.stringify(sc)+" data-sn="+JSON.stringify(hs.s)+" onclick=PICK(this)>";
+      html+="<div class=sdot style="+JSON.stringify(dc)+"></div>";
+      html+="<div class=sname>"+hs.s+"<span class=hbadge>domovská</span></div>";
+      html+="<div class=stime>"+hs.t+"</div></div>";
+      html+="<div style=margin-top:8px><span class=clink onclick=showAllStops()>Nastupujem z inej zastávky</span></div>";
+      if(!selStop){ selStop=hs; chkSub(); }
+    } else {
+      html="<div style=background:#eef3fb;border-radius:10px;padding:11px>Domovská zastávka nie je na tejto zmene. Vyberte náhradu:</div>";
+      html+=mkStopList(stops,home);
+    }
+  } else {
+    html=mkStopList(stops,home);
+    if(home && home.lk===selLK){
+      html+="<div style=margin-top:8px><span class=clink onclick=useHome()>Použiť domovskú zastávku</span></div>";
+    }
+  }
+  el.innerHTML=html;
+}
+function mkStopList(stops,home){
+  return stops.map(function(s){
+    var isSel=selStop && selStop.s===s.s;
+    var isHome=home && home.lk===selLK && home.sname===s.s;
+    var cls="stop-item"+(isSel?" sel":"")+(isHome?" home":"");
+    var dc=isSel ? "background:#1a3f72;border-color:#1a3f72" : (isHome ? "background:#2d7dd2;border-color:#2d7dd2" : "");
+    var r="<div class="+JSON.stringify(cls)+" data-sn="+JSON.stringify(s.s)+" onclick=PICK(this)>";
+    r+="<div class=sdot style="+JSON.stringify(dc)+"></div>";
+    r+="<div class=sname>"+s.s+(isHome?"<span class=hbadge>domovská</span>":"")+"</div>";
+    r+="<div class=stime>"+s.t+"</div></div>";
+    return r;
+  }).join("");
+}
+function PICK(el){
+  pickStop(el.dataset.sn);
+}
+function pickStop(sname){
+  var line=LINES[selLK]; if(!line) return;
+  var stops=getLineStops(selLK,selShift)||[];
+  selStop=stops.find(function(s){ return s.s===sname; })||null;
+  renderStops(); chkSub();
+}
+function showAllStops(){ showAll=true; selStop=null; renderStops(); chkSub(); }
+function useHome(){ showAll=false; selStop=null; renderStops(); chkSub(); }
+function chkSub(){
+  var btn=document.getElementById("sub-btn"); if(!btn) return;
+  btn.disabled=!(hasDate()&&selShift&&selLK&&selStop);
+}
+// ── DAY TYPES ──
+var dayTypes={};
+function getDaysList(){
+  if(rangeOn&&rFrom&&rTo){
+    var arr=[],f=new Date(rFrom+"T12:00"),t=new Date(rTo+"T12:00");
+    for(var d=new Date(f);d<=t;d.setDate(d.getDate()+1)) arr.push(ds(new Date(d)));
+    return arr;
+  }
+  return Array.from(selDays).sort();
+}
+function getShiftTimes(){
+  var m=selShift.match(/^(\d{2}:\d{2})-(\d{2}:\d{2})$/);
+  return m?{start:m[1],end:m[2]}:{start:"",end:""};
+}
+function initDayTypes(existingTypes){
+  var times=getShiftTimes();
+  dayTypes={};
+  getDaysList().forEach(function(dstr){
+    dayTypes[dstr]=existingTypes&&existingTypes[dstr]
+      ? existingTypes[dstr]
+      : {dovoz:true,odvoz:true,endTime:times.end};
+  });
+}
+function toggleDayType(dstr,type){
+  if(!dayTypes[dstr]) dayTypes[dstr]={dovoz:false,odvoz:false,endTime:getShiftTimes().end};
+  var next=!dayTypes[dstr][type];
+  if(!next && !dayTypes[dstr][type==="dovoz"?"odvoz":"dovoz"]) return;
+  dayTypes[dstr][type]=next;
+  renderDayList();
+}
+function updateEndTime(dstr,val){
+  if(dayTypes[dstr]) dayTypes[dstr].endTime=val;
+}
+function renderDayList(){
+  var el=document.getElementById("cf-days"); if(!el) return;
+  var days=getDaysList();
+  var times=getShiftTimes();
+  if(!days.length){ el.innerHTML="<div class='no-item'>Žiadne dni.</div>"; return; }
+  el.innerHTML=days.map(function(dstr){
+    var dt=dayTypes[dstr]||{dovoz:true,odvoz:true,endTime:times.end};
+    var d=new Date(dstr+"T12:00");
+    var endVal=dt.endTime||times.end;
+    return "<div class='day-row'>"
+      +"<span class='day-lbl'>"+fFull(d)+"</span>"
+      +"<div class='day-btns'>"
+      +(times.start?"<span class='shift-time' title='Začiatok zmeny'>"+times.start+"</span>":"")
+      +"<button class='dt-btn dov"+(dt.dovoz?" on":"")+"' onclick='toggleDayType(\""+dstr+"\",\"dovoz\")'>Dovoz</button>"
+      +"<button class='dt-btn odv"+(dt.odvoz?" on":"")+"' onclick='toggleDayType(\""+dstr+"\",\"odvoz\")'>Odvoz</button>"
+      +(times.end?"<input type='time' class='end-time-inp' value='"+endVal+"' onchange='updateEndTime(\""+dstr+"\",this.value)' title='Čas ukončenia zmeny (možno zmeniť pri presčase)'>":"")
+      +"</div>"
+      +"</div>";
+  }).join("");
+}
+// ── CONFIRM ──
+function goConfirm(){
+  var isEdit=!!editId;
+  var line=LINES[selLK];
+  initDayTypes(isEdit && bkgs.find(function(b){return b.id===editId;}) ? bkgs.find(function(b){return b.id===editId;}).dayTypes : null);
+  document.getElementById("cf-emp").textContent=curUser.name+" ("+curUser.id+")";
+  document.getElementById("cf-shift").textContent=selShift+" ("+selShiftLb+")";
+  document.getElementById("cf-line").textContent="Linka "+line.n+" - "+line.nm;
+  document.getElementById("cf-stop").textContent=selStop.s;
+  document.getElementById("cf-time").textContent=selStop.t;
+  document.getElementById("cf-sub").textContent=isEdit?"Uloženie zmeny":"Skontrolujte údaje";
+  document.getElementById("cf-btn").textContent=isEdit?"Uložiť zmenu":"Odoslať nahláška";
+  renderDayList();
+  showCard("sc-confirm");
+}
+function _doConfirmBase(){
+  var isEdit=!!editId;
+  var line=LINES[selLK];
+  var dl=getDateLb();
+  var bk={
+    id:isEdit?editId:Date.now(),
+    dl:dl, dkeys:Array.from(selDays),
+    rFrom:rangeOn?rFrom:"", rTo:rangeOn?rTo:"",
+    shift:selShift, shiftLb:selShiftLb,
+    lk:selLK, ln:line.n, lnm:line.nm,
+    stop:selStop.s, time:selStop.t,
+    dayTypes:JSON.parse(JSON.stringify(dayTypes))
+  };
+  if(isEdit){ var idx=bkgs.findIndex(function(b){ return b.id===editId; }); if(idx>=0) bkgs[idx]=bk; }
+  else bkgs.unshift(bk);
+  document.getElementById("done-title").textContent=isEdit?"Nahláška bola upravená.":"Nahláška bola odoslaná.";
+  document.getElementById("done-sub").textContent=dl+", zmena "+selShift+", linka "+line.n;
+  document.getElementById("d-date").textContent=dl;
+  document.getElementById("d-shift").textContent=selShift+" ("+selShiftLb+")";
+  document.getElementById("d-line").textContent="Linka "+line.n+" - "+line.nm;
+  document.getElementById("d-stop").textContent=selStop.s;
+  document.getElementById("d-time").textContent=selStop.t;
+  editId=null;
+  showCard("sc-done");
+  resetForm();
+  var eb=document.getElementById("edit-ban"); if(eb) eb.classList.remove("on");
+  var ceb=document.getElementById("cancel-edit-btn"); if(ceb) ceb.style.display="none";
+  var sb=document.getElementById("sub-btn"); if(sb) sb.textContent="Pokračovať";
+}
+// ── EDIT ──
+function startEdit(id){
+  var bk=bkgs.find(function(b){ return b.id===id; }); if(!bk) return;
+  editId=id;
+  selShift=""; selStop=null; selLK=""; showAll=false;
+  rangeOn=false; rFrom=""; rTo="";
+  document.querySelectorAll(".sc").forEach(function(c){ c.classList.remove("sel"); });
+  var oi=document.getElementById("other-inp"); if(oi) oi.value="";
+  var ow=document.getElementById("other-row"); if(ow){ ow.style.borderColor=""; ow.style.background=""; }
+  var tb=document.getElementById("tog-box"); if(tb) tb.classList.remove("on");
+  var rs=document.getElementById("range-sec"); if(rs) rs.style.display="none";
+  var rf=document.getElementById("r-from"); if(rf) rf.value="";
+  var rt=document.getElementById("r-to"); if(rt) rt.value="";
+  var sb=document.getElementById("sub-btn"); if(sb) sb.disabled=true;
+  selDays=new Set(bk.dkeys||[]);
+  buildWstrip();
+  if(bk.rFrom&&bk.rTo){
+    rangeOn=true; rFrom=bk.rFrom; rTo=bk.rTo;
+    var tb2=document.getElementById("tog-box"); if(tb2) tb2.classList.add("on");
+    var rs2=document.getElementById("range-sec"); if(rs2) rs2.style.display="block";
+    var rf2=document.getElementById("r-from"); if(rf2) rf2.value=rFrom;
+    var rt2=document.getElementById("r-to"); if(rt2) rt2.value=rTo;
+    var tdb=document.getElementById("td-btn"); if(tdb){ tdb.style.opacity="0.4"; tdb.style.pointerEvents="none"; }
+    document.querySelectorAll(".dc").forEach(function(c){ c.style.opacity="0.4"; c.style.pointerEvents="none"; });
+  }
+  updSum();
+  var si=SHIFTS.findIndex(function(s){ return s.k===bk.shift; });
+  if(si>=0){
+    var sc=document.getElementById("sc"+si); if(sc) sc.classList.add("sel");
+    selShift=bk.shift; selShiftLb=bk.shiftLb;
+  }
+  selLK=bk.lk;
+  buildLines();
+  var stops=(LINES[selLK]&&LINES[selLK].sh[selShift])||[];
+  selStop=stops.find(function(s){ return s.s===bk.stop; })||null;
+  renderStops(); chkSub();
+  var eb=document.getElementById("edit-ban"); if(eb){ eb.classList.add("on"); }
+  var ebt=document.getElementById("edit-ban-txt"); if(ebt) ebt.textContent="Upravujete: Linka "+bk.ln+" - "+bk.stop+" ("+bk.dl+")";
+  var ceb=document.getElementById("cancel-edit-btn"); if(ceb) ceb.style.display="block";
+  var sb2=document.getElementById("sub-btn"); if(sb2) sb2.textContent="Pokračovať k uloženiu";
+  switchTab(0);
+}
+function cancelEdit(){
+  editId=null; resetForm();
+  var eb=document.getElementById("edit-ban"); if(eb) eb.classList.remove("on");
+  var ceb=document.getElementById("cancel-edit-btn"); if(ceb) ceb.style.display="none";
+  var sb=document.getElementById("sub-btn"); if(sb) sb.textContent="Pokračovať";
+}
+function resetForm(){
+  selShift=""; selStop=null; selLK=""; showAll=false;
+  rangeOn=false; rFrom=""; rTo="";
+  document.querySelectorAll(".sc").forEach(function(c){ c.classList.remove("sel"); });
+  var oi=document.getElementById("other-inp"); if(oi) oi.value="";
+  var ow=document.getElementById("other-row"); if(ow){ ow.style.borderColor=""; ow.style.background=""; }
+  var tb=document.getElementById("tog-box"); if(tb) tb.classList.remove("on");
+  var rs=document.getElementById("range-sec"); if(rs) rs.style.display="none";
+  var rf=document.getElementById("r-from"); if(rf) rf.value="";
+  var rt=document.getElementById("r-to"); if(rt) rt.value="";
+  var sb=document.getElementById("sub-btn"); if(sb){ sb.disabled=true; sb.textContent="Pokračovať"; }
+  var fl=document.getElementById("f-line"); if(fl) fl.innerHTML="<option value=''>-- Najprv vyberte zmenu --</option>";
+  var fsl=document.getElementById("f-stop-lbl"); if(fsl) fsl.style.display="none";
+  var fs=document.getElementById("f-stops"); if(fs) fs.innerHTML="";
+  var tdb=document.getElementById("td-btn"); if(tdb){ tdb.style.opacity="1"; tdb.style.pointerEvents="auto"; }
+  document.querySelectorAll(".dc").forEach(function(c){ c.style.opacity="1"; c.style.pointerEvents="auto"; });
+  selDays=new Set();
+  buildWstrip();
+}
+// ── BOOKINGS ──
+function _delBkBase(id){ bkgs=bkgs.filter(function(b){ return b.id!==id; }); renderBkgs(); }
+function getBkStatus(b) {
+  // Vráti HTML badge podľa b.verified
+  if (b.verified === true)  return "<span class='bk-ok' title='Potvrdené v evidencii'>✅</span>";
+  if (b.verified === false) return "<span class='bk-err' title='Nezapísané! Kontaktuj dispečing: 0904 930 930'>❌</span>";
+  return "<span class='bk-pending' title='Overujem...' style='font-size:16px;opacity:.5'>⏳</span>";
+}
+
+function verifyBkg(b) {
+  if (!b.orderIds || !b.orderIds.length) return;
+  var batchId = b.orderIds[0];
+  var expectedCount = b.days ? b.days.length : 1;
+  fetch(BACKEND_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({action: "checkOrder", batchId: batchId})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    b.verified = (data.ok && data.found >= expectedCount);
+    b.verifiedCount = data.found || 0;
+    b.verifiedTotal = expectedCount;
+    renderBkgs();
+  })
+  .catch(function(){ b.verified = null; });
+}
+
+function renderBkgs(){
+  var el=document.getElementById("bk-list"); if(!el) return;
+  if(!bkgs.length){ el.innerHTML="<div class='empty'>Žiadne nahlásky.</div>"; return; }
+  el.innerHTML=bkgs.map(function(b){
+    var statusBadge = getBkStatus(b);
+    var verifiedDetail = "";
+    if (b.verified === true)  verifiedDetail = "<div class='bk-verify-ok'>✅ Potvrdené v evidencii (" + b.verifiedCount + "/" + b.verifiedTotal + " dní)</div>";
+    if (b.verified === false) verifiedDetail = "<div class='bk-verify-err'>❌ Nezapísané! Zavolaj: 0904 930 930</div>";
+    return "<div class='bk-item'>"
+      +"<div class='bk-date'>"+b.dl+" "+statusBadge+"</div>"
+      +"<div class='bk-main'>"
+      +"<div style='flex:1'><div class='bk-info'>"+b.shift+" - "+b.shiftLb+" - Linka "+b.ln+"</div><div class='bk-stop'>"+b.stop+" - odchod "+b.time+"</div>"+(b.dayTypes?function(){var s=Object.values(b.dayTypes);var dov=s.filter(function(x){return x.dovoz;}).length;var odv=s.filter(function(x){return x.odvoz;}).length;var parts=[];if(dov)parts.push(dov+"× dovoz");if(odv)parts.push(odv+"× odvoz");return"<div class='bk-stop' style='margin-top:2px'>"+parts.join(", ")+"</div>";}():"")+verifiedDetail+"</div>"
+      +"<div class='bk-acts'>"
+      +"<button class='edit-btn' onclick='startEdit("+b.id+")'>Zmeniť</button>"
+      +"<button class='del-btn' onclick='delBk("+b.id+")'>Zrušiť</button>"
+      +"</div></div></div>";
+  }).join("");
+}
+
+function openDayShiftPicker(dstr) {
+  if (!selDays.has(dstr)) { selDays.add(dstr); buildWstrip(); }
+  var d = new Date(dstr+"T12:00");
+  var label = DN[d.getDay()]+" "+d.getDate()+"."+(d.getMonth()+1)+".";
+  var current = dayShiftOverride[dstr] || selShift || "";
+  var opts = SHIFTS.map(function(s){
+    var sel = (s.k === current) ? " style='font-weight:700;background:#e8f0fb'" : "";
+    return "<div onclick='setDayShift(""+dstr+"",""+s.k+"")' style='padding:11px 14px;cursor:pointer;border-bottom:1px solid #eee"+sel+"'>"+s.lb+" <span style='color:#8a94a8'>"+s.nm+"</span></div>";
+  }).join("");
+  var html = "<div style='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:flex-end;justify-content:center' id='day-picker-bg' onclick='closeDayPicker(event)'>"
+    +"<div style='background:#fff;border-radius:18px 18px 0 0;width:100%;max-width:460px;max-height:80vh;overflow-y:auto'>"
+    +"<div style='padding:14px 16px 10px;font-weight:700;font-size:14px;color:#1a3f72;border-bottom:1px solid #eee'>Iná zmena pre: "+label+"</div>"
+    +opts
+    +"<div onclick='clearDayShift(""+dstr+"")' style='padding:12px 14px;cursor:pointer;color:#c0392b;text-align:center;font-weight:600'>✕ Zrušiť override (použiť hlavnú zmenu)</div>"
+    +"</div></div>";
+  var el = document.createElement("div");
+  el.id = "day-picker-wrap";
+  el.innerHTML = html;
+  document.body.appendChild(el);
+}
+function closeDayPicker(e) {
+  if (e.target.id === "day-picker-bg") {
+    var el = document.getElementById("day-picker-wrap");
+    if (el) el.remove();
+  }
+}
+function setDayShift(dstr, shiftKey) {
+  dayShiftOverride[dstr] = shiftKey;
+  var el = document.getElementById("day-picker-wrap");
+  if (el) el.remove();
+  buildWstrip();
+}
+function clearDayShift(dstr) {
+  delete dayShiftOverride[dstr];
+  var el = document.getElementById("day-picker-wrap");
+  if (el) el.remove();
+  buildWstrip();
+}
+
+function goNew(){ showCard("sc-main"); switchTab(0); }
+function goMy(){ showCard("sc-main"); switchTab(1); }
+// ── INIT ──
+buildShifts();
+buildWstrip();
+
+// ── BACKEND INTEGRÁCIA ──────────────────────────────────────
+var BACKEND_URL = "https://hidden-hat-7586.econom-akara.workers.dev";
+var USE_BACKEND = true;
+
+// Override login - synchronný lookup v lokálnej DB
+function doLogin() {
+  var emp = DB[idVal];
+  if (!emp) { for (var k in DB) { if (parseInt(k,10)===parseInt(idVal,10)) { emp=DB[k]; idVal=k; break; } } }
+  if (!emp) {
+    document.getElementById("login-err").style.display = "block";
+    return;
+  }
+  _doLoginBase();
+}
+
+// Odoslanie nahláška do Apps Script (fire-and-forget)
+function sendToBackend(data) {
+  fetch(BACKEND_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(data)
+  }).catch(function(){});
+}
+
+// Override doConfirm - pridaj odosielanie do Apps Script
+function doConfirm() {
+  // Ulož hodnoty PRED resetom
+  var _curUser = curUser;
+  var _selStop = selStop;
+  var _selShift = selShift;
+  var _selLK = selLK;
+  var _days = getDaysList();
+  var _dayTypes = JSON.parse(JSON.stringify(dayTypes));
+  _doConfirmBase();
+  if (!_curUser || !_selStop) return;
+  // Pošli všetky dni v JEDNOM requeste
+  var _dayShiftOverride = JSON.parse(JSON.stringify(dayShiftOverride));
+  var orderItems = _days.map(function(d) {
+    var dt = _dayTypes[d] || {dovoz:true, odvoz:true};
+    var zmena = _dayShiftOverride[d] || _selShift;
+    return {
+      datum: d,
+      typ: (dt.dovoz && dt.odvoz) ? "dovoz+odvoz" : dt.dovoz ? "dovoz" : "odvoz",
+      zmena: zmena,
+      endTime: dt.endTime || null
+    };
+  });
+  var batchId = "BATCH-" + Date.now();
+  sendToBackend({
+    action: "newOrderBatch",
+    batchId: batchId,
+    id: _curUser.id,
+    name: _curUser.name,
+    firma: _curUser.firma || "BIA",
+    zmena: _selShift,
+    linka: _selLK,
+    zastavka: _selStop.s,
+    casNastupu: _selStop.t,
+    days: orderItems,
+    hasOverrides: Object.keys(_dayShiftOverride).length > 0
+  });
+  // Ulož batchId do poslednej nahláška
+  if (bkgs.length > 0) bkgs[0].orderIds = [batchId];
+  // Ulož počet dní do nahláška pre verifikáciu
+  if (bkgs.length > 0) bkgs[0].days = orderItems;
+  // Spusti overenie po 6 sekundách - v done karte aj v zozname
+  var _bkg = bkgs[0];
+  setTimeout(function(){
+    verifyOrder(batchId, orderItems.length);
+    if (_bkg) verifyBkg(_bkg);
+  }, 6000);
+}
+
+function verifyOrder(batchId, expectedCount) {
+  var el = document.getElementById("verify-status");
+  if (!el) return;
+  el.style.display = "block";
+  el.style.background = "#f0f4ff";
+  el.style.color = "#1a3f72";
+  el.textContent = "⏳ Overujem zápis v evidencii...";
+  
+  fetch(BACKEND_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({action: "checkOrder", batchId: batchId})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (data.ok && data.found >= expectedCount) {
+      el.style.background = "#e8f5e9";
+      el.style.color = "#2e7d32";
+      el.textContent = "✅ Potvrdené: " + data.found + "/" + expectedCount + " dní zapísaných v evidencii.";
+    } else if (data.ok && data.found > 0) {
+      el.style.background = "#fff8e1";
+      el.style.color = "#e65100";
+      el.textContent = "⚠️ Čiastočne: " + data.found + "/" + expectedCount + " dní. Kontaktuj dispečing: 0904 930 930";
+    } else {
+      el.style.background = "#ffebee";
+      el.style.color = "#c62828";
+      el.textContent = "❌ Nahláška nebola doručená do evidencie! Kontaktuj: 0904 930 930";
+    }
+  })
+  .catch(function() {
+    el.style.background = "#fff8e1";
+    el.style.color = "#e65100";
+    el.textContent = "⚠️ Overenie zlyhalo — skontroluj pripojenie a opakuj.";
+  });
+}
+
+// Override delBk - zruš v Apps Script
+function delBk(id) {
+  var bk = bkgs.find(function(b){ return b.id===id; });
+  if (bk) {
+    // Zruš každý deň zvlášť (orderIds sú uložené ako pole)
+    var ids = bk.orderIds || [bk.id];
+    ids.forEach(function(oid) {
+      sendToBackend({action:"cancelOrder", orderId:oid, id:curUser ? curUser.id : "", name:curUser ? curUser.name : ""});
+    });
+  }
+  _delBkBase(id);
+}
+
+// Ping pri štarte
+window.addEventListener("load", function(){
+  fetch(BACKEND_URL + "?action=ping").catch(function(){});
+});
+
+</script>
+</body>
+</html>
+:0;padding:0;}
 html,body{min-height:100%;background:#eef0f4;font-family:"Roboto",sans-serif;-webkit-font-smoothing:antialiased;}
 .app-wrap{min-height:100vh;padding:28px 16px 40px;display:flex;flex-direction:column;align-items:center;}
 .logo-bar{margin-bottom:20px;display:flex;justify-content:center;}
