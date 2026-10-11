@@ -991,6 +991,21 @@ function onCustomShift(){
 }
 // ── SHIFT FALLBACK ──
 var SHIFT_FB={"06:00-18:00":"06:00-14:00","14:00-02:00":"14:00-22:00","22:00-10:00":"22:00-06:00","08:00-16:00":"06:00-18:00"};
+function calcStopTime(stopTime, selShift){
+  // Pre custom zmenu vypočítaj skutočný čas odchodu zo zastávky
+  if(!stopTime || !selShift) return stopTime;
+  var stdShift = getShiftFallback(selShift);
+  var stdStart = stdShift ? stdShift.match(/^(\d{2}:\d{2})-/) : null;
+  stdStart = stdStart ? stdStart[1] : null;
+  var customStart = selShift.match(/^(\d{2}:\d{2})-/);
+  customStart = customStart ? customStart[1] : null;
+  if(!customStart || !stdStart || customStart === stdStart) return stopTime;
+  var toMin=function(s){var p=s.split(':');return parseInt(p[0])*60+parseInt(p[1]);};
+  var offset = toMin(customStart) - toMin(stdStart);
+  var base = ((toMin(stopTime) + offset) % 1440 + 1440) % 1440;
+  var h=Math.floor(base/60), m=base%60;
+  return (h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+}
 function getShiftFallback(shift){
   // Presný fallback
   if(SHIFT_FB[shift]) return SHIFT_FB[shift];
@@ -1060,7 +1075,7 @@ function renderStops(){
       html+="<div class="+JSON.stringify(sc)+" data-sn="+JSON.stringify(hs.s)+" onclick=PICK(this)>";
       html+="<div class=sdot style="+JSON.stringify(dc)+"></div>";
       html+="<div class=sname>"+hs.s+"<span class=hbadge>domovská</span></div>";
-      html+="<div class=stime>"+hs.t+"</div></div>";
+      html+="<div class=stime>"+calcStopTime(hs.t,selShift)+"</div></div>";
       html+="<div style=margin-top:8px><span class=clink onclick=showAllStops()>Nastupujem z inej zastávky</span></div>";
       if(!selStop){ selStop=hs; chkSub(); }
     } else {
@@ -1084,7 +1099,7 @@ function mkStopList(stops,home){
     var r="<div class="+JSON.stringify(cls)+" data-sn="+JSON.stringify(s.s)+" onclick=PICK(this)>";
     r+="<div class=sdot style="+JSON.stringify(dc)+"></div>";
     r+="<div class=sname>"+s.s+(isHome?"<span class=hbadge>domovská</span>":"")+"</div>";
-    r+="<div class=stime>"+s.t+"</div></div>";
+    r+="<div class=stime>"+calcStopTime(s.t,selShift)+"</div></div>";
     return r;
   }).join("");
 }
@@ -1171,7 +1186,7 @@ function goConfirm(){
   document.getElementById("cf-shift").textContent=selShift+" ("+selShiftLb+")";
   document.getElementById("cf-line").textContent="Linka "+line.n+" - "+line.nm;
   document.getElementById("cf-stop").textContent=selStop.s;
-  document.getElementById("cf-time").textContent=selStop.t;
+  document.getElementById("cf-time").textContent=calcStopTime(selStop.t, selShift);
   document.getElementById("cf-sub").textContent=isEdit?"Uloženie zmeny":"Skontrolujte údaje";
   document.getElementById("cf-btn").textContent=isEdit?"Uložiť zmenu":"Odoslať nahláška";
   renderDayList();
@@ -1198,7 +1213,7 @@ function _doConfirmBase(){
   document.getElementById("d-shift").textContent=selShift+" ("+selShiftLb+")";
   document.getElementById("d-line").textContent="Linka "+line.n+" - "+line.nm;
   document.getElementById("d-stop").textContent=selStop.s;
-  document.getElementById("d-time").textContent=selStop.t;
+  document.getElementById("d-time").textContent=calcStopTime(selStop.t, selShift);
   editId=null;
   showCard("sc-done");
   resetForm();
