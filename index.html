@@ -991,13 +991,25 @@ function onCustomShift(){
 }
 // ── SHIFT FALLBACK ──
 var SHIFT_FB={"06:00-18:00":"06:00-14:00","14:00-02:00":"14:00-22:00","22:00-10:00":"22:00-06:00","08:00-16:00":"06:00-18:00"};
+function getShiftFallback(shift){
+  // Presný fallback
+  if(SHIFT_FB[shift]) return SHIFT_FB[shift];
+  // Pre iné zmeny - podľa hodiny začiatku nájdi najbližší štandardný shift
+  var m = shift ? shift.match(/^(\d{2}):\d{2}-/) : null;
+  if(!m) return null;
+  var h = parseInt(m[1]);
+  if(h>=4  && h<10) return "06:00-14:00";
+  if(h>=10 && h<17) return "14:00-22:00";
+  if(h>=17 && h<24) return "22:00-06:00";
+  return "22:00-06:00"; // nočná
+}
 function getLineStops(lk,shift){
   var line=LINES[lk]; if(!line) return null;
   if(line.sh[shift]) return line.sh[shift];
-  var fb=SHIFT_FB[shift];
+  var fb=getShiftFallback(shift);
   if(fb){
     if(line.sh[fb]) return line.sh[fb];
-    var fb2=SHIFT_FB[fb];
+    var fb2=getShiftFallback(fb);
     if(fb2 && line.sh[fb2]) return line.sh[fb2];
   }
   return null;
