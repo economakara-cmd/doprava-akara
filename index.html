@@ -655,6 +655,7 @@ var SHIFTS = [
   {k:"06:00-14:00", lb:"06-14", nm:"Ranná"},
   {k:"14:00-22:00", lb:"14-22", nm:"Poobedná"},
   {k:"22:00-06:00", lb:"22-06", nm:"Nočná"},
+  {k:"10:00-22:00", lb:"10-22", nm:"Dlhá denná"},
   {k:"06:00-18:00", lb:"06-18", nm:"Dlhá ranná"},
   {k:"14:00-02:00", lb:"14-02", nm:"Dlhá poob."},
   {k:"22:00-10:00", lb:"22-10", nm:"Dlhá nočná"},
@@ -990,7 +991,7 @@ function onCustomShift(){
   buildLines(); renderStops(); chkSub();
 }
 // ── SHIFT FALLBACK ──
-var SHIFT_FB={"06:00-18:00":"06:00-14:00","14:00-02:00":"14:00-22:00","22:00-10:00":"22:00-06:00","08:00-16:00":"06:00-18:00"};
+var SHIFT_FB={"06:00-18:00":"06:00-14:00","14:00-02:00":"14:00-22:00","22:00-10:00":"22:00-06:00","08:00-16:00":"06:00-18:00","10:00-22:00":"14:00-22:00"};
 function calcStopTime(stopTime, selShift){
   // Pre custom zmenu vypočítaj skutočný čas odchodu zo zastávky
   if(!stopTime || !selShift) return stopTime;
@@ -1380,6 +1381,46 @@ function goMy(){ showCard("sc-main"); switchTab(1); }
 buildShifts();
 buildWstrip();
 
+// Načítaj aktuálny CP zo Sheetu (dynamická aktualizácia)
+(function loadCPFromSheet(){
+  fetch(BACKEND_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({action: "getCP"})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (!data.ok || !data.lines) return;
+    // Zlúč CP dáta s existujúcim LINES objektom
+    var updated = 0;
+    Object.keys(data.lines).forEach(function(lk){
+      if (!LINES[lk]) return;
+      var cpLine = data.lines[lk];
+      // Pre každú zmenu aktualizuj časy zastávok
+      Object.keys(cpLine).forEach(function(zmena){
+        var cpStops = cpLine[zmena];
+        if (!cpStops.length) return;
+        if (!LINES[lk].sh) return;
+        // Prepiš časy v existujúcich zastávkach
+        var existingStops = LINES[lk].sh[zmena];
+        if (!existingStops) return;
+        cpStops.forEach(function(cpS){
+          if (cpS.dir !== "in") return; // len časy dovoz
+          var found = existingStops.find(function(s){
+            return s.s === cpS.s || s.s.indexOf(cpS.s) >= 0 || cpS.s.indexOf(s.s) >= 0;
+          });
+          if (found && found.t !== cpS.t) {
+            found.t = cpS.t;
+            updated++;
+          }
+        });
+      });
+    });
+    if (updated > 0) console.log("CP aktualizovaný zo Sheetu: " + updated + " zmien");
+  })
+  .catch(function(){}); // ticho zlyhaj - offline bude fungovať zo statického LINES
+})();
+
 // ── BACKEND INTEGRÁCIA ──────────────────────────────────────
 var BACKEND_URL = "https://hidden-hat-7586.econom-akara.workers.dev";
 var USE_BACKEND = true;
@@ -1470,9 +1511,10 @@ function verifyOrder(batchId, expectedCount) {
   .then(function(r){ return r.json(); })
   .then(function(data) {
     if (data.ok && data.found >= expectedCount) {
-      el.style.background = "#e8f5e9";
-      el.style.color = "#2e7d32";
-      el.textContent = "✅ Potvrdené: " + data.found + "/" + expectedCount + " dní zapísaných v evidencii.";
+      var warn = data.msg && data.msg.indexOf("⚠️") >= 0 ? " " + data.msg.split("⚠️")[1] : "";
+      el.style.background = warn ? "#fff8e1" : "#e8f5e9";
+      el.style.color = warn ? "#e65100" : "#2e7d32";
+      el.textContent = (warn ? "⚠️" : "✅") + " Potvrdené: " + data.found + "/" + expectedCount + " dní." + warn;
     } else if (data.ok && data.found > 0) {
       el.style.background = "#fff8e1";
       el.style.color = "#e65100";
