@@ -2049,7 +2049,12 @@ function doConfirm() {
       typ: (dt.dovoz && dt.odvoz) ? "dovoz+odvoz" : dt.dovoz ? "dovoz" : "odvoz",
       zmena: zmena,
       endTime: dt.endTime || null,
-      startTime: dt.startTime || null
+      startTime: dt.startTime || null,
+      stopTime: (function(){
+        var t = calcStopTime(_selStop.t, zmena);
+        if(t && t.length === 4) t = '0' + t;
+        return t;
+      })()  // čas autobusu zo zastávky = L v Objednávky, vždy HH:MM
     };
   });
   var batchId = "BATCH-" + Date.now();
