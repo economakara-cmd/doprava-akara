@@ -651,6 +651,11 @@ var DB = {
   "1590":{name:"Levente Bado",ini:"LB",home:null,firma:"BIA"},
   "1591":{name:"Halyna Volos",ini:"HV",home:null,firma:"BIA"},
   "1579":{name:"Radoslav Uhrín",ini:"RU",home:null,firma:"BIA"},
+  // Testovacie ID
+  "421":{name:"Ján Testovací",ini:"JT",home:{lk:"L1",sname:"Nitra, CENTRUM Mlyny"},firma:"BIA"},
+  "387":{name:"Mária Skúšobná",ini:"MŠ",home:{lk:"L2",sname:"Čab, Jednota"},firma:"BIA"},
+  "1024":{name:"Peter Demo",ini:"PD",home:{lk:"L4",sname:"Čakajovce, ZŠ"},firma:"BAP"},
+  "512":{name:"Anna Testová",ini:"AT",home:{lk:"L5",sname:"Zbehy, Základná škola"},firma:"BAP"},
 }; // BIA zamestnanci
 var SHIFTS = [
   {k:"06:00-14:00", lb:"06-14", nm:"Ranná"},
@@ -2170,7 +2175,7 @@ function verifyOrder(batchId, expectedCount) {
       el.textContent = "⚠️ Čiastočne zapísané: " + data.found + "/" + expectedCount + " dní.";
       if (da) {
         da.style.display = "block";
-        da.innerHTML = "<button class='btn-s' style='margin:6px 0;background:#fff3e0;color:#e65100;border:1.5px solid #ffb300' onclick='retrySend()'>🔄 Odoslať chýbajúce</button>";
+        da.innerHTML = "<button class='btn-s' style='margin:6px 0;background:#fff3e0;color:#e65100;border:1.5px solid #ffb300' onclick='retrySend()'>🔍 Preveriť a doplniť chýbajúce</button>";
       }
     } else {
       // Nič nezapísané
@@ -2179,7 +2184,7 @@ function verifyOrder(batchId, expectedCount) {
       el.textContent = "❌ Nahláška nebola doručená do evidencie!";
       if (da) {
         da.style.display = "block";
-        da.innerHTML = "<button class='btn-p' style='margin:6px 0' onclick='retrySend()'>🔄 Skúsiť znova odoslať</button>"
+        da.innerHTML = "<button class='btn-p' style='margin:6px 0' onclick='retrySend()'>🔍 Preveriť a doplniť</button>"
           + "<div style='font-size:12px;color:#888;margin-top:4px'>alebo zavolaj: <b>0904 930 930</b></div>";
       }
     }
@@ -2199,13 +2204,35 @@ function retrySend() {
   if (!_lastBatchId || !_lastOrderItems) return;
   var el = document.getElementById("verify-status");
   var da = document.getElementById("done-actions");
-  if (el) { el.style.background="#f0f4ff"; el.style.color="#1a3f72"; el.textContent="⏳ Opakujem odoslanie..."; }
+  if (el) { el.style.background="#f0f4ff"; el.style.color="#1a3f72"; el.textContent="⏳ Preverujem čo chýba v evidencii..."; }
   if (da) da.style.display = "none";
-  // Znovu odošli celý batch
-  if (_lastBkg) {
+
+  // Krok 1: Zisti ktore dni uz su v Sheete
+  fetch(BACKEND_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({action: "checkOrder", batchId: _lastBatchId, detail: true})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    // Zisti ktore datamy uz su zapísane
+    var foundDates = data.foundDates || [];
+    var missing = _lastOrderItems.filter(function(o){
+      return foundDates.indexOf(o.datum) === -1;
+    });
+
+    if (missing.length === 0) {
+      // Vsetko je uz v Sheete
+      if (el) { el.style.background="#e8f5e9"; el.style.color="#2e7d32"; el.textContent="✅ Všetky záznamy sú v evidencii. Nič nechýba."; }
+      return;
+    }
+
+    // Krok 2: Odošli len chýbajúce dni
+    if (el) el.textContent = "⏳ Dopĺňam " + missing.length + " chýbajúcich dní...";
+    var retryBatchId = _lastBatchId + "-RETRY";
     sendToBackend({
       action: "newOrderBatch",
-      batchId: _lastBatchId,
+      batchId: retryBatchId,
       id: _lastBkg.empId,
       name: _lastBkg.empName,
       firma: _lastBkg.firma || "BIA",
@@ -2213,13 +2240,35 @@ function retrySend() {
       linka: _lastBkg.lk,
       zastavka: _lastBkg.stop,
       casNastupu: _lastBkg.time,
-      days: _lastOrderItems
+      days: missing
     });
-  }
-  // Overenie po 7 sek
-  setTimeout(function(){
-    verifyOrder(_lastBatchId, _lastOrderItems.length);
-  }, 7000);
+
+    // Krok 3: Overenie po 7 sek
+    setTimeout(function(){
+      fetch(BACKEND_URL, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({action: "checkOrder", batchId: _lastBatchId})
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d2){
+        if (d2.ok && d2.found >= _lastOrderItems.length) {
+          if (el) { el.style.background="#e8f5e9"; el.style.color="#2e7d32"; el.textContent="✅ Doplnené. Všetky záznamy potvrdené: "+d2.found+"/"+_lastOrderItems.length+" dní."; }
+          if (da) da.style.display="none";
+        } else {
+          if (el) { el.style.background="#fff8e1"; el.style.color="#e65100"; el.textContent="⚠️ Čiastočne: "+( d2.found||0)+"/"+_lastOrderItems.length+" dní. Zavolaj: 0904 930 930"; }
+          if (da) { da.style.display="block"; da.innerHTML="<button class='btn-s' style='margin:6px 0' onclick='retrySend()'>🔄 Skúsiť znova</button>"; }
+        }
+      })
+      .catch(function(){
+        if (el) { el.style.background="#fff8e1"; el.style.color="#e65100"; el.textContent="⚠️ Overenie zlyhalo. Zavolaj: 0904 930 930"; }
+      });
+    }, 7000);
+  })
+  .catch(function(){
+    if (el) { el.style.background="#fff8e1"; el.style.color="#e65100"; el.textContent="⚠️ Spojenie zlyhalo — skontroluj internet."; }
+    if (da) { da.style.display="block"; da.innerHTML="<button class='btn-p' style='margin:6px 0' onclick='retrySend()'>🔄 Skúsiť znova</button>"; }
+  });
 }
 
 // Override delBk - zruš v Apps Script
