@@ -461,6 +461,9 @@ html,body{min-height:100%;background:#eef0f4;font-family:"Roboto",sans-serif;-we
 <button class="btn-s" id="cancel-edit-btn" style="display:none" onclick="cancelEdit()">Zrušiť úpravu</button>
 </div>
 <div id="pane-my" style="display:none">
+<div style="text-align:right;margin-bottom:8px">
+  <button onclick="refreshMyOrders()" style="font-size:12px;padding:5px 12px;border-radius:8px;border:1.5px solid #c0d4f0;background:#f0f6ff;color:#1a3f72;cursor:pointer">🔄 Obnoviť</button>
+</div>
 <div id="bk-list"></div>
 </div>
 </div>
@@ -1459,7 +1462,7 @@ function loadMyOrders(){
           return b.days && b.days.some(function(d){ return d.orderId === o.orderId; });
         });
         if(!exists){
-          // Zoskup podla orderId prefix (batch)
+          // Zoskup podla orderId prefix (batch) - BATCH-timestamp alebo EMAIL-UIDxx-timestamp
           var batchKey = o.orderId ? o.orderId.split('-').slice(0,3).join('-') : o.orderId;
           var existing = bkgs.find(function(b){ return b.batchKey === batchKey; });
           if(existing){
@@ -1468,10 +1471,19 @@ function loadMyOrders(){
             bkgs.unshift({
               batchKey: batchKey,
               id: curUser.id,
+              dl: o.datum,
               linka: o.linka,
+              ln: o.linka ? o.linka.replace('L','') : '',
+              lnm: '',
               zastavka: o.zastavka,
+              stop: o.zastavka,
+              time: '',
               zmena: o.zmena,
+              shift: o.zmena,
+              shiftLb: o.zmena,
               days: [{datum:o.datum, typ:o.typ, zmena:o.zmena, orderId:o.orderId, stav:o.stav}],
+              dayTypes: {},
+              dkeys: [o.datum],
               verified: true,
               verifiedCount: 1,
               verifiedTotal: 1,
@@ -1483,6 +1495,13 @@ function loadMyOrders(){
       if(future.length > 0) renderBkgs();
     })
     .catch(function(){});
+}
+function refreshMyOrders(){
+  // Vymaz existujuce zaznamy zo servera a nacitaj znova len buducie
+  bkgs = bkgs.filter(function(b){ return !b.fromServer; });
+  var el = document.getElementById("bk-list");
+  if(el) el.innerHTML = "<div class='empty' style='color:#1a3f72'>⏳ Načítavam budúce nahlášky...</div>";
+  loadMyOrders();
 }
 function switchTab(idx){
   document.getElementById("tab-new").classList.toggle("active",idx===0);
@@ -2274,13 +2293,30 @@ function retrySend() {
 // Override delBk - zruš v Apps Script
 function delBk(id) {
   var bk = bkgs.find(function(b){ return b.id===id; });
-  if (bk) {
-    // Zruš každý deň zvlášť (orderIds sú uložené ako pole)
-    var ids = bk.orderIds || [bk.id];
-    ids.forEach(function(oid) {
-      sendToBackend({action:"cancelOrder", orderId:oid, id:curUser ? curUser.id : "", name:curUser ? curUser.name : ""});
-    });
+  if (!bk) return;
+
+  // Potvrdzovací dialog
+  var dn = bk.dl || "túto nahláška";
+  if (!confirm("Naozaj chcete zrušiť nahlášku:\n" + dn + "?\n\nZáznam bude označený ako Zrušená v evidencii.")) return;
+
+  // Zruš v GS podľa batchKey (prefix orderId) alebo orderIds
+  var cancelData = {
+    action: "cancelOrder",
+    id: curUser ? curUser.id : "",
+    name: curUser ? curUser.name : ""
+  };
+  if (bk.orderIds && bk.orderIds.length) {
+    // Nahlašky odoslané z tejto session - máme batchId
+    cancelData.batchId = bk.orderIds[0].split("-").slice(0,2).join("-");
+    cancelData.orderId = bk.orderIds[0];
+  } else if (bk.batchKey) {
+    // Nahlašky načítané z GS cez loadMyOrders
+    cancelData.batchId = bk.batchKey;
+  } else if (bk.days && bk.days[0] && bk.days[0].orderId) {
+    // Jednotlivé dni majú orderId
+    cancelData.batchId = bk.days[0].orderId.split("-").slice(0,2).join("-");
   }
+  sendToBackend(cancelData);
   _delBkBase(id);
 }
 
