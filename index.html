@@ -509,6 +509,7 @@ html,body{min-height:100%;background:#eef0f4;font-family:"Roboto",sans-serif;-we
 <div class="srow"><span class="sk">Čas odchodu</span><span class="sv" id="d-time">-</span></div>
 </div>
 <div id="verify-status" style="display:none;margin:14px 0 4px;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:500;text-align:center;"></div>
+<div id="done-actions" style="display:none;margin:8px 0;"></div>
 <button class="btn-p" onclick="goNew()">Pridať ďalšiu nahláška</button>
 <button class="btn-s" onclick="goMy()">Zobraziť moje nahlásky</button>
 </div>
@@ -1435,6 +1436,48 @@ function enterMain(){
   showCard("sc-main");
   switchTab(0);
   resetForm();
+  loadMyOrders();
+}
+function loadMyOrders(){
+  // Načítaj budúce nahlášky z GS po prihlásení
+  fetch(BACKEND_URL+'?action=getOrders&id='+encodeURIComponent(curUser.id))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data.ok || !data.orders) return;
+      var today = new Date().toISOString().slice(0,10);
+      var future = data.orders.filter(function(o){
+        return o.datum >= today && o.stav !== 'Zrušená' && o.stav !== 'Duplikát' && o.stav !== 'test';
+      });
+      // Pridaj do bkgs ak este nie su (podla orderId)
+      future.forEach(function(o){
+        var exists = bkgs.some(function(b){
+          return b.days && b.days.some(function(d){ return d.orderId === o.orderId; });
+        });
+        if(!exists){
+          // Zoskup podla orderId prefix (batch)
+          var batchKey = o.orderId ? o.orderId.split('-').slice(0,3).join('-') : o.orderId;
+          var existing = bkgs.find(function(b){ return b.batchKey === batchKey; });
+          if(existing){
+            existing.days.push({datum:o.datum, typ:o.typ, zmena:o.zmena, orderId:o.orderId, stav:o.stav});
+          } else {
+            bkgs.unshift({
+              batchKey: batchKey,
+              id: curUser.id,
+              linka: o.linka,
+              zastavka: o.zastavka,
+              zmena: o.zmena,
+              days: [{datum:o.datum, typ:o.typ, zmena:o.zmena, orderId:o.orderId, stav:o.stav}],
+              verified: true,
+              verifiedCount: 1,
+              verifiedTotal: 1,
+              fromServer: true
+            });
+          }
+        }
+      });
+      if(future.length > 0) renderBkgs();
+    })
+    .catch(function(){});
 }
 function switchTab(idx){
   document.getElementById("tab-new").classList.toggle("active",idx===0);
@@ -1722,7 +1765,7 @@ function initDayTypes(existingTypes){
   getDaysList().forEach(function(dstr){
     dayTypes[dstr]=existingTypes&&existingTypes[dstr]
       ? existingTypes[dstr]
-      : {dovoz:true,odvoz:true,endTime:times.end};
+      : {dovoz:true,odvoz:true,endTime:times.end,startTime:null};
   });
 }
 function toggleDayType(dstr,type){
@@ -1753,10 +1796,10 @@ function renderDayList(){
     return "<div class='day-row'>"
       +"<span class='day-lbl'>"+fFull(d)+"</span>"
       +"<div class='day-btns'>"
-      +(times.start?"<input type='time' class='start-time-inp' value='"+times.start+"' onchange='updateStartTime(\""+dstr+"\",this.value)' title='Čas príchodu (nástup do práce)'>":"")
+      +(times.start?"<input type='time' class='start-time-inp' value='"+(dt.startTime||times.start)+"' oninput='updateStartTime(\""+dstr+"\",this.value)' onblur='updateStartTime(\""+dstr+"\",this.value)' title='Čas príchodu (nástup do práce)'>":"")
       +"<button class='dt-btn dov"+(dt.dovoz?" on":"")+"' onclick='toggleDayType(\""+dstr+"\",\"dovoz\")'>Dovoz</button>"
       +"<button class='dt-btn odv"+(dt.odvoz?" on":"")+"' onclick='toggleDayType(\""+dstr+"\",\"odvoz\")'>Odvoz</button>"
-      +(times.end?"<input type='time' class='end-time-inp' value='"+endVal+"' onchange='updateEndTime(\""+dstr+"\",this.value)' title='Čas ukončenia zmeny (možno zmeniť pri presčase)'>":"")
+      +(times.end?"<input type='time' class='end-time-inp' value='"+endVal+"' oninput='updateEndTime(\""+dstr+"\",this.value)' onblur='updateEndTime(\""+dstr+"\",this.value)' title='Čas ukončenia zmeny (možno zmeniť pri presčase)'>":"")
       +"</div>"
       +"</div>";
   }).join("");
@@ -2071,6 +2114,15 @@ function doConfirm() {
     days: orderItems,
     hasOverrides: Object.keys(_dayShiftOverride).length > 0
   });
+  // Ulož pre prípadný retry
+  _lastBatchId = batchId;
+  _lastOrderItems = orderItems;
+  _lastBkg = {
+    empId: _curUser.id, empName: _curUser.name,
+    firma: _curUser.firma || "BIA",
+    shift: _selShift, lk: _selLK,
+    stop: _selStop.s, time: _selStop.t
+  };
   // Ulož batchId do poslednej nahláška
   if (bkgs.length > 0) bkgs[0].orderIds = [batchId];
   // Ulož počet dní do nahláška pre verifikáciu
@@ -2083,14 +2135,20 @@ function doConfirm() {
   }, 6000);
 }
 
+var _lastBatchId = null;
+var _lastOrderItems = null;
+var _lastBkg = null;
+
 function verifyOrder(batchId, expectedCount) {
   var el = document.getElementById("verify-status");
+  var da = document.getElementById("done-actions");
   if (!el) return;
   el.style.display = "block";
   el.style.background = "#f0f4ff";
   el.style.color = "#1a3f72";
   el.textContent = "⏳ Overujem zápis v evidencii...";
-  
+  if (da) da.style.display = "none";
+
   fetch(BACKEND_URL, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -2098,26 +2156,70 @@ function verifyOrder(batchId, expectedCount) {
   })
   .then(function(r){ return r.json(); })
   .then(function(data) {
+    if (da) da.style.display = "none";
     if (data.ok && data.found >= expectedCount) {
+      // Všetko OK
       var warn = data.msg && data.msg.indexOf("⚠️") >= 0 ? " " + data.msg.split("⚠️")[1] : "";
       el.style.background = warn ? "#fff8e1" : "#e8f5e9";
       el.style.color = warn ? "#e65100" : "#2e7d32";
       el.textContent = (warn ? "⚠️" : "✅") + " Potvrdené: " + data.found + "/" + expectedCount + " dní." + warn;
     } else if (data.ok && data.found > 0) {
+      // Čiastočne — niečo chýba
       el.style.background = "#fff8e1";
       el.style.color = "#e65100";
-      el.textContent = "⚠️ Čiastočne: " + data.found + "/" + expectedCount + " dní. Kontaktuj dispečing: 0904 930 930";
+      el.textContent = "⚠️ Čiastočne zapísané: " + data.found + "/" + expectedCount + " dní.";
+      if (da) {
+        da.style.display = "block";
+        da.innerHTML = "<button class='btn-s' style='margin:6px 0;background:#fff3e0;color:#e65100;border:1.5px solid #ffb300' onclick='retrySend()'>🔄 Odoslať chýbajúce</button>";
+      }
     } else {
+      // Nič nezapísané
       el.style.background = "#ffebee";
       el.style.color = "#c62828";
-      el.textContent = "❌ Nahláška nebola doručená do evidencie! Kontaktuj: 0904 930 930";
+      el.textContent = "❌ Nahláška nebola doručená do evidencie!";
+      if (da) {
+        da.style.display = "block";
+        da.innerHTML = "<button class='btn-p' style='margin:6px 0' onclick='retrySend()'>🔄 Skúsiť znova odoslať</button>"
+          + "<div style='font-size:12px;color:#888;margin-top:4px'>alebo zavolaj: <b>0904 930 930</b></div>";
+      }
     }
   })
   .catch(function() {
     el.style.background = "#fff8e1";
     el.style.color = "#e65100";
-    el.textContent = "⚠️ Overenie zlyhalo — skontroluj pripojenie a opakuj.";
+    el.textContent = "⚠️ Overenie zlyhalo — skontroluj pripojenie.";
+    if (da) {
+      da.style.display = "block";
+      da.innerHTML = "<button class='btn-p' style='margin:6px 0' onclick='retrySend()'>🔄 Skúsiť znova odoslať</button>";
+    }
   });
+}
+
+function retrySend() {
+  if (!_lastBatchId || !_lastOrderItems) return;
+  var el = document.getElementById("verify-status");
+  var da = document.getElementById("done-actions");
+  if (el) { el.style.background="#f0f4ff"; el.style.color="#1a3f72"; el.textContent="⏳ Opakujem odoslanie..."; }
+  if (da) da.style.display = "none";
+  // Znovu odošli celý batch
+  if (_lastBkg) {
+    sendToBackend({
+      action: "newOrderBatch",
+      batchId: _lastBatchId,
+      id: _lastBkg.empId,
+      name: _lastBkg.empName,
+      firma: _lastBkg.firma || "BIA",
+      zmena: _lastBkg.shift,
+      linka: _lastBkg.lk,
+      zastavka: _lastBkg.stop,
+      casNastupu: _lastBkg.time,
+      days: _lastOrderItems
+    });
+  }
+  // Overenie po 7 sek
+  setTimeout(function(){
+    verifyOrder(_lastBatchId, _lastOrderItems.length);
+  }, 7000);
 }
 
 // Override delBk - zruš v Apps Script
