@@ -1973,8 +1973,14 @@ function renderBkgs(){
   el.innerHTML=bkgs.map(function(b){
     var statusBadge = getBkStatus(b);
     var verifiedDetail = "";
-    if (b.verified === true)  verifiedDetail = "<div class='bk-verify-ok'>✅ Potvrdené v evidencii (" + b.verifiedCount + "/" + b.verifiedTotal + " dní)</div>";
-    if (b.verified === false) verifiedDetail = "<div class='bk-verify-err'>❌ Nezapísané! Zavolaj: 0904 930 930</div>";
+    if (b.fromServer) {
+      // Nahlašky načítané z GS sú definitívne v evidencii - nezobrazuj počet
+      verifiedDetail = "<div class='bk-verify-ok'>✅ Zapísané v evidencii</div>";
+    } else if (b.verified === true) {
+      verifiedDetail = "<div class='bk-verify-ok'>✅ Potvrdené v evidencii (" + b.verifiedCount + "/" + b.verifiedTotal + " dní)</div>";
+    } else if (b.verified === false) {
+      verifiedDetail = "<div class='bk-verify-err'>❌ Nezapísané! <button onclick='retrySend()' style='margin-left:8px;font-size:11px;padding:2px 8px;border-radius:6px;border:1px solid #c62828;background:#ffebee;color:#c62828;cursor:pointer'>🔍 Preveriť</button></div>";
+    }
     return "<div class='bk-item'>"
       +"<div class='bk-date'>"+b.dl+" "+statusBadge+"</div>"
       +"<div class='bk-main'>"
